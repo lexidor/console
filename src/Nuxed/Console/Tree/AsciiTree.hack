@@ -8,60 +8,62 @@ use namespace HH\Lib\{C, Str, Vec};
  * Build a human readable ASCII tree given an infinitely nested data structure.
  */
 class AsciiTree<Tk as arraykey, Tv> extends AbstractTree<Tk, Tv> {
-    /**
-     * {@inheritdoc}
-     */
-    <<__Override>>
-    protected async function build(
-        KeyedContainer<Tk, Tv> $tree,
-        string $prefix = '',
-    ): Awaitable<string> {
-        $output = new Lib\Ref<vec<Awaitable<string>>>(vec[]);
-        $keys = Vec\keys($this->data);
-        $branch = vec($this->data);
+  /**
+   * {@inheritdoc}
+   */
+  <<__Override>>
+  protected async function build(
+    KeyedContainer<Tk, Tv> $tree,
+    string $prefix = '',
+  ): Awaitable<string> {
+    $output = new Lib\Ref<vec<Awaitable<string>>>(vec[]);
+    $keys = Vec\keys($this->data);
+    $branch = vec($this->data);
 
-        for ($i = 0, $count = C\count($branch); $i < $count; ++$i) {
-            $itemPrefix = $prefix;
-            $next = $branch[$i];
+    for ($i = 0, $count = C\count($branch); $i < $count; ++$i) {
+      $itemPrefix = $prefix;
+      $next = $branch[$i];
 
-            if ($i === $count - 1) {
-                if ($next is Container<_>) {
-                    $itemPrefix .= '└─┬ ';
-                } else {
-                    $itemPrefix .= '└── ';
-                }
-            } else {
-                if ($next is Container<_>) {
-                    $itemPrefix .= '├─┬ ';
-                } else {
-                    $itemPrefix .= (0 === $i && '' === $prefix) ? '┌── ' : '├── ';
-                }
-            }
+      if ($i === $count - 1) {
+        if ($next is Container<_>) {
+          $itemPrefix .= '└─┬ ';
+        } else {
+          $itemPrefix .= '└── ';
+        }
+      } else {
+        if ($next is Container<_>) {
+          $itemPrefix .= '├─┬ ';
+        } else {
+          $itemPrefix .= (0 === $i && '' === $prefix)
+            ? '┌── '
+            : '├── ';
+        }
+      }
 
-            if ($branch[$i] is Container<_>) {
-                $output->value[] = async {
-                    return $itemPrefix.(string)$keys[$i];
-                };
-            } else {
-                $output->value[] = async {
-                    return $itemPrefix.(string)$branch[$i];
-                };
-            }
+      if ($branch[$i] is Container<_>) {
+        $output->value[] = async {
+          return $itemPrefix.(string)$keys[$i];
+        };
+      } else {
+        $output->value[] = async {
+          return $itemPrefix.(string)$branch[$i];
+        };
+      }
 
-            if ($next is Container<_>) {
-                if (!$next is KeyedContainer<_, _>) {
-                    $next = vec($next);
-                }
-
-                $tree = new self<arraykey, mixed>($next);
-                $output->value[] = $tree->build(
-                    $next,
-                    $prefix.($i === $count - 1 ? '  ' : '│ '),
-                );
-            }
+      if ($next is Container<_>) {
+        if (!$next is KeyedContainer<_, _>) {
+          $next = vec($next);
         }
 
-        $result = await Asio\v($output->value);
-        return Str\join($result, Console\Output::LF);
+        $tree = new self<arraykey, mixed>($next);
+        $output->value[] = $tree->build(
+          $next,
+          $prefix.($i === $count - 1 ? '  ' : '│ '),
+        );
+      }
     }
+
+    $result = await Asio\v($output->value);
+    return Str\join($result, Console\Output\IOutput::LF);
+  }
 }

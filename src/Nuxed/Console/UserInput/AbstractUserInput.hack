@@ -7,62 +7,62 @@ use namespace Nuxed\Console;
  * the user input.
  */
 abstract class AbstractUserInput<T> implements IUserInput<T> {
-    /**
-     * Input values accepted to continue.
-     */
-    protected dict<string, T> $acceptedValues = dict[];
+  /**
+   * Input values accepted to continue.
+   */
+  protected dict<string, T> $acceptedValues = dict[];
 
-    /**
-     * Default value if input given is empty.
-     */
-    protected string $default = '';
+  /**
+   * Default value if input given is empty.
+   */
+  protected string $default = '';
 
-    /**
-     * If the input should be accepted strictly or not.
-     */
-    protected bool $strict = true;
+  /**
+   * If the input should be accepted strictly or not.
+   */
+  protected bool $strict = true;
 
+  /**
+   * Construct a new `UserInput` object.
+   */
+  public function __construct(
     /**
-     * Construct a new `UserInput` object.
+     * `Input` object used for retrieving user input.
      */
-    public function __construct(
-        /**
-         * `Input` object used for retrieving user input.
-         */
-        protected Console\Input $input,
-
-        /**
-         * `Output` object used for sending output.
-         */
-        protected Console\Output $output,
-    ) {}
+    protected Console\Input\IInput $input,
 
     /**
-     * Set the values accepted by the user.
+     * The output object used for sending output.
      */
-    public function setAcceptedValues(
-        KeyedContainer<string, T> $choices = dict[],
-    ): this {
-        $this->acceptedValues = dict<string, T>($choices);
+    protected Console\Output\IOutput $output,
+  ) {}
 
-        return $this;
-    }
+  /**
+   * Set the values accepted by the user.
+   */
+  public function setAcceptedValues(
+    KeyedContainer<string, T> $choices = dict[],
+  ): this {
+    $this->acceptedValues = dict<string, T>($choices);
 
-    /**
-     * Set the default value to use when input is empty.
-     */
-    public function setDefault(string $default): this {
-        $this->default = $default;
+    return $this;
+  }
 
-        return $this;
-    }
+  /**
+   * Set the default value to use when input is empty.
+   */
+  public function setDefault(string $default): this {
+    $this->default = $default;
 
-    /**
-     * Set if the prompt should run in strict mode.
-     */
-    public function setStrict(bool $strict): this {
-        $this->strict = $strict;
+    return $this;
+  }
 
-        return $this;
-    }
+  /**
+   * Set if the prompt should run in strict mode.
+   */
+  public function setStrict(bool $strict): this {
+    $this->strict = $strict;
+
+    return $this;
+  }
 }

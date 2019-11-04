@@ -5,11 +5,11 @@ namespace Nuxed\Console\Input\Definition;
  * notation (i.e., --foo, -f).
  */
 class Argument extends AbstractDefinition<string> {
-    /**
-     * {@inheritdoc}
-     */
-    <<__Override>>
-    public function getFormattedName(string $name): string {
-        return $name;
-    }
+  /**
+   * {@inheritdoc}
+   */
+  <<__Override>>
+  public function getFormattedName(string $name): string {
+    return $name;
+  }
 }

@@ -8,19 +8,18 @@ use namespace Nuxed\Console;
  * for use in other applications.
  */
 class TabDelimitedTable extends AbstractTable {
-    /**
-     * Build the table and return its markup.
-     */
-    <<__Override>>
-    public function render(): string {
-        $output = vec[];
-        $output[] = Str\join($this->headers, "\t");
+  /**
+   * Build the table and return its markup.
+   */
+  <<__Override>>
+  public function render(): string {
+    $output = vec[];
+    $output[] = Str\join($this->headers, "\t");
 
-        foreach ($this->rows as $row) {
-            $output[] = Str\join($row, "\t");
-        }
-
-        return Str\trim(Str\join($output, Console\Output::LF));
+    foreach ($this->rows as $row) {
+      $output[] = Str\join($row, "\t");
     }
 
+    return Str\trim(Str\join($output, Console\Output\IOutput::LF));
+  }
 }

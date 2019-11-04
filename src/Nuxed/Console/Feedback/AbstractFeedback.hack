@@ -8,313 +8,316 @@ use namespace HH\Lib\{Math, Str, Vec};
  * displaying the progress information.
  */
 abstract class AbstractFeedback implements IFeedback {
+  /**
+   * Characters used in displaying the feedback in the output.
+   */
+  protected vec<string> $characterSequence = vec[];
+
+  /**
+   * The current cycle out of the given total.
+   */
+  protected int $current = 0;
+
+  /**
+   * The format the feedback indicator will be displayed as.
+   */
+  protected string $format = '{:prefix}{:feedback}{:suffix}';
+
+  /**
+   * The current iteration of the feedback used to calculate the speed.
+   */
+  protected int $iteration = 0;
+
+  /**
+   * The max length of the characters in the character sequence.
+   */
+  protected int $maxLength = 1;
+
+  /**
+   * The template used to prefix the output.
+   */
+  protected string $prefix = '{:message}  {:percent}% [';
+
+  /**
+   * The current speed of the feedback.
+   */
+  protected float $speed = 0.0;
+
+  /**
+   * The time the feedback started.
+   */
+  protected int $start = -1;
+
+  /**
+   * The template used to suffix the output.
+   */
+  protected string $suffix = '] {:elapsed} / {:estimated}';
+
+  /**
+   * The current tick used to calculate the speed.
+   */
+  protected int $tick = -1;
+
+  /**
+   * The feedback running time.
+   */
+  protected int $timer = -1;
+
+  /**
+   * Create a new instance of the `Feedback`.
+   */
+  public function __construct(
     /**
-     * Characters used in displaying the feedback in the output.
+     * The `Output` used for displaying the feedback information.
      */
-    protected vec<string> $characterSequence = vec[];
-
+    protected Console\Output\IOutput $output,
     /**
-     * The current cycle out of the given total.
+     * The `Terminal` use for displaying the feedback information.
      */
-    protected int $current = 0;
-
+    protected Console\Terminal $terminal,
     /**
-     * The format the feedback indicator will be displayed as.
+     * The total number of cycles expected for the feedback to take until finished.
      */
-    protected string $format = '{:prefix}{:feedback}{:suffix}';
-
+    protected int $total = 0,
     /**
-     * The current iteration of the feedback used to calculate the speed.
+     * The message to be displayed with the feedback.
      */
-    protected int $iteration = 0;
-
+    protected string $message = '',
     /**
-     * The max length of the characters in the character sequence.
+     * The interval (in miliseconds) between updates of the indicator.
      */
-    protected int $maxLength = 1;
+    protected int $interval = 100,
+  ) {}
 
-    /**
-     * The template used to prefix the output.
-     */
-    protected string $prefix = '{:message}  {:percent}% [';
+  /**
+   * {@inheritdoc}
+   */
+  public async function advance(int $increment = 1): Awaitable<void> {
+    $this->current = Math\minva($this->total, $this->current + $increment);
 
-    /**
-     * The current speed of the feedback.
-     */
-    protected float $speed = 0.0;
-
-    /**
-     * The time the feedback started.
-     */
-    protected int $start = -1;
-
-    /**
-     * The template used to suffix the output.
-     */
-    protected string $suffix = '] {:elapsed} / {:estimated}';
-
-    /**
-     * The current tick used to calculate the speed.
-     */
-    protected int $tick = -1;
-
-    /**
-     * The feedback running time.
-     */
-    protected int $timer = -1;
-
-    /**
-     * Create a new instance of the `Feedback`.
-     */
-    public function __construct(
-        /**
-         * The `Output` used for displaying the feedback information.
-         */
-        protected Console\Output $output,
-        /**
-         * The `Terminal` use for displaying the feedback information.
-         */
-        protected Console\Terminal $terminal,
-        /**
-         * The total number of cycles expected for the feedback to take until finished.
-         */
-        protected int $total = 0,
-        /**
-         * The message to be displayed with the feedback.
-         */
-        protected string $message = '',
-        /**
-         * The interval (in miliseconds) between updates of the indicator.
-         */
-        protected int $interval = 100,
-    ) {}
-
-    /**
-     * {@inheritdoc}
-     */
-    public async function advance(int $increment = 1): Awaitable<void> {
-        $this->current = Math\minva($this->total, $this->current + $increment);
-
-        if ($this->shouldUpdate()) {
-            await $this->display();
-        }
-
-        if ($this->current === $this->total) {
-            await $this->display(true);
-        }
+    if ($this->shouldUpdate()) {
+      await $this->display();
     }
 
-    /**
-     * Build and return all variables that are accepted when building the prefix
-     * and suffix for the output.
-     */
-    protected function buildOutputVariables(): KeyedContainer<string, string> {
-        $message = $this->message;
-        $percent = Str\pad_right(
-            (string)Math\floor($this->getPercentageComplete() * 100),
-            3,
-        );
-        $estimated = $this->formatTime((int)$this->estimateTimeRemaining());
-        $elapsed = Str\pad_right(
-            $this->formatTime($this->getElapsedTime()),
-            Str\length($estimated),
-        );
+    if ($this->current === $this->total) {
+      await $this->display(true);
+    }
+  }
 
-        $variables = dict[
-            'message' => $message,
-            'percent' => $percent,
-            'elapsed' => $elapsed,
-            'estimated' => $estimated,
-        ];
+  /**
+   * Build and return all variables that are accepted when building the prefix
+   * and suffix for the output.
+   */
+  protected function buildOutputVariables(): KeyedContainer<string, string> {
+    $message = $this->message;
+    $percent = Str\pad_right(
+      (string)Math\floor($this->getPercentageComplete() * 100),
+      3,
+    );
+    $estimated = $this->formatTime((int)$this->estimateTimeRemaining());
+    $elapsed = Str\pad_right(
+      $this->formatTime($this->getElapsedTime()),
+      Str\length($estimated),
+    );
 
-        return $variables;
+    $variables = dict[
+      'message' => $message,
+      'percent' => $percent,
+      'elapsed' => $elapsed,
+      'estimated' => $estimated,
+    ];
+
+    return $variables;
+  }
+
+  /**
+   * Method used to format and output the display of the feedback.
+   */
+  abstract protected function display(bool $finish = false): Awaitable<void>;
+
+  /**
+   * Given the speed and currently elapsed time, calculate the estimated time
+   * remaining.
+   */
+  protected function estimateTimeRemaining(): float {
+    $speed = $this->getSpeed();
+    if ($speed is null || !$this->getElapsedTime()) {
+      return 0.0;
     }
 
-    /**
-     * Method used to format and output the display of the feedback.
-     */
-    abstract protected function display(bool $finish = false): Awaitable<void>;
+    return Math\round($this->total / $speed);
+  }
 
-    /**
-     * Given the speed and currently elapsed time, calculate the estimated time
-     * remaining.
-     */
-    protected function estimateTimeRemaining(): float {
-        $speed = $this->getSpeed();
-        if ($speed is null || !$this->getElapsedTime()) {
-            return 0.0;
-        }
+  /**
+   * {@inheritdoc}
+   */
+  public async function finish(): Awaitable<void> {
+    $this->current = $this->total;
+    await $this->display(true);
+    await $this->output->write('');
+  }
 
-        return Math\round($this->total / $speed);
+  /**
+   * Format the given time for output.
+   */
+  protected function formatTime(int $time): string {
+    return ((string)Math\floor($time / 60)).
+      ':'.
+      Str\pad_left(((string)($time % 60)), 2, '0');
+  }
+
+  /**
+   * Retrieve the current elapsed time.
+   */
+  protected function getElapsedTime(): int {
+    if ($this->start < 0) {
+      return 0;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public async function finish(): Awaitable<void> {
-        $this->current = $this->total;
-        await $this->display(true);
-        await $this->output->write();
+    return (\time() - $this->start);
+  }
+
+  /**
+   * Retrieve the percentage complete based on the current cycle and the total
+   * number of cycles.
+   */
+  protected function getPercentageComplete(): float {
+    if ($this->total === 0) {
+      return 1.0;
     }
 
-    /**
-     * Format the given time for output.
-     */
-    protected function formatTime(int $time): string {
-        return ((string)Math\floor($time / 60)).
-            ':'.
-            Str\pad_left(((string)($time % 60)), 2, '0');
+    return (float)($this->current / $this->total);
+  }
+
+  /**
+   * Get the current speed of the feedback.
+   */
+  protected function getSpeed(): float {
+    if ($this->start < 0) {
+      return 0.0;
     }
 
-    /**
-     * Retrieve the current elapsed time.
-     */
-    protected function getElapsedTime(): int {
-        if ($this->start < 0) {
-            return 0;
-        }
-
-        return (\time() - $this->start);
+    if ($this->tick < 0) {
+      $this->tick = $this->start;
     }
 
-    /**
-     * Retrieve the percentage complete based on the current cycle and the total
-     * number of cycles.
-     */
-    protected function getPercentageComplete(): float {
-        if ($this->total === 0) {
-            return 1.0;
-        }
+    $now = \microtime(true) as num;
+    $span = $now - $this->tick;
 
-        return (float)($this->current / $this->total);
+    if ($span > 1) {
+      $this->iteration++;
+      $this->tick = $now;
+      $this->speed = (float)(($this->current / $this->iteration) / $span);
     }
 
-    /**
-     * Get the current speed of the feedback.
-     */
-    protected function getSpeed(): float {
-        if ($this->start < 0) {
-            return 0.0;
-        }
+    return $this->speed;
+  }
 
-        if ($this->tick < 0) {
-            $this->tick = $this->start;
-        }
+  /**
+   * Retrieve the total number of cycles the feedback should take.
+   */
+  protected function getTotal(): string {
+    return Str\format_number($this->total);
+  }
 
-        $now = \microtime(true) as num;
-        $span = $now - $this->tick;
+  /**
+   * Set the characters used in the output.
+   */
+  public function setCharacterSequence(Container<string> $characters): this {
+    $this->characterSequence = vec<string>($characters);
+    $this->setMaxLength();
 
-        if ($span > 1) {
-            $this->iteration++;
-            $this->tick = $now;
-            $this->speed = (float)(($this->current / $this->iteration) / $span);
-        }
+    return $this;
+  }
 
-        return $this->speed;
+  /**
+   * {@inheritdoc}
+   */
+  public function setInterval(int $interval): this {
+    $this->interval = $interval;
+
+    return $this;
+  }
+
+  /**
+   * Set the maximum length of the available character sequence characters.
+   *
+   * @return $this
+   */
+  protected function setMaxLength(): this {
+    $this->maxLength = Math\max(
+      Vec\map($this->characterSequence, ($k) ==> Str\length($k)),
+    ) as nonnull;
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setMessage(string $message): this {
+    $this->message = $message;
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setPrefix(string $prefix): this {
+    $this->prefix = $prefix;
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setSuffix(string $sufix): this {
+    $this->suffix = $sufix;
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setTotal(int $total): this {
+    $this->total = $total;
+
+    return $this;
+  }
+
+  /**
+   * Determine if the feedback should update its output based on the current
+   * time, start time, and set interval.
+   */
+  protected function shouldUpdate(): bool {
+    $now = \microtime(true) * 1000;
+
+    if ($this->timer < 0) {
+      $this->start = (int)(($this->timer = $now) / 1000);
+
+      return true;
     }
 
-    /**
-     * Retrieve the total number of cycles the feedback should take.
-     */
-    protected function getTotal(): string {
-        return Str\format_number($this->total);
+    if (($now - $this->timer) > $this->interval) {
+      $this->timer = $now;
+
+      return true;
     }
 
-    /**
-     * Set the characters used in the output.
-     */
-    public function setCharacterSequence(Container<string> $characters): this {
-        $this->characterSequence = vec<string>($characters);
-        $this->setMaxLength();
+    return false;
+  }
 
-        return $this;
+  protected function insert(
+    string $format,
+    KeyedContainer<string, string> $variables,
+  ): string {
+    foreach ($variables as $key => $value) {
+      $format = Str\replace($format, Str\format('{:%s}', $key), $value);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function setInterval(int $interval): this {
-        $this->interval = $interval;
-
-        return $this;
-    }
-
-    /**
-     * Set the maximum length of the available character sequence characters.
-     *
-     * @return $this
-     */
-    protected function setMaxLength(): this {
-        $this->maxLength = Math\max(
-            Vec\map($this->characterSequence, ($k) ==> Str\length($k)),
-        ) as nonnull;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setMessage(string $message): this {
-        $this->message = $message;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setPrefix(string $prefix): this {
-        $this->prefix = $prefix;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setSuffix(string $sufix): this {
-        $this->suffix = $sufix;
-
-        return $this;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setTotal(int $total): this {
-        $this->total = $total;
-
-        return $this;
-    }
-
-    /**
-     * Determine if the feedback should update its output based on the current
-     * time, start time, and set interval.
-     */
-    protected function shouldUpdate(): bool {
-        $now = \microtime(true) * 1000;
-
-        if ($this->timer < 0) {
-            $this->start = (int)(($this->timer = $now) / 1000);
-
-            return true;
-        }
-
-        if (($now - $this->timer) > $this->interval) {
-            $this->timer = $now;
-
-            return true;
-        }
-
-        return false;
-    }
-
-    protected function insert(string $format, KeyedContainer<string, string> $variables): string {
-        foreach ($variables as $key => $value) {
-            $format = Str\replace($format, Str\format('{:%s}', $key), $value);
-        }
-
-        return $format;
-    }
+    return $format;
+  }
 }
