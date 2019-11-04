@@ -8,8 +8,8 @@
 </p>
 
 # Nuxed Console
- 
-Nuxed Console allows you to create beautiful and testable command line applications easily.
+
+The Nuxed Console component allows you to create beautiful and testable command line applications easily.
 
 ### Installation
 
@@ -40,10 +40,10 @@ $ hhvm app.hack --help
 
 ### Security
 
-For information on reporting security vulnerabilities in Nuxed Console, see [SECURITY.md](SECURITY.md).
+For information on reporting security vulnerabilities in Nuxed, see [SECURITY.md](SECURITY.md).
 
 ---
 
 ### License
 
-The Nuxed Console library is open-sourced software licensed under the MIT-licensed.
+Nuxed is open-sourced software licensed under the MIT-licensed.
