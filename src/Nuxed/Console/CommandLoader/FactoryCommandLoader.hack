@@ -21,7 +21,7 @@ final class FactoryCommandLoader implements ICommandLoader {
   public function get(string $name): Console\Command {
     if (!$this->has($name)) {
       throw new Console\Exception\InvalidCommandException(
-        Str\format('Command "%s" doesn\'t exists', $name),
+        Str\format('Command "%s" does not exists', $name),
       );
     }
 
