@@ -69,8 +69,12 @@ abstract class Command {
     $this->arguments = new Bag\ArgumentBag();
     $this->flags = new Bag\FlagBag();
     $this->options = new Bag\OptionBag();
-    $this->setName($name);
+    if ('' !== $name) {
+      $this->setName($name);
+    }
+
     $this->configure();
+    $this->validateName($this->name);
   }
 
   /**
