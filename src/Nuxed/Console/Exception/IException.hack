@@ -9,6 +9,7 @@ namespace Nuxed\Console\Exception;
   InvalidNumberOfArgumentsException::class,
   InvalidNumberOfCommandsException::class,
   MissingValueException::class,
+  RuntimeException::class
 )>>
 interface IException {
   require extends \Exception;

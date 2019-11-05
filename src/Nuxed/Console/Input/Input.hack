@@ -130,16 +130,9 @@ class Input implements IInput {
       return $this->command;
     }
 
-    $input = $this->rawInput;
+    $this->parse();
 
-    foreach ($input as $index => $value) {
-      $command = $value;
-      $this->setInput(Vec\filter_with_key($input, ($k, $v) ==> $index !== $k));
-      $this->command = $command;
-      return $this->command;
-    }
-
-    return null;
+    return $this->command;
   }
 
   /**
@@ -149,7 +142,7 @@ class Input implements IInput {
     $argument = $this->arguments->get($key);
     if ($argument is null) {
       throw new Console\Exception\InvalidInputDefinitionException(
-        Str\format("The argument %s doesn't exist.", $key),
+        Str\format("The argument %s does not exist.", $key),
       );
     }
 
@@ -170,7 +163,7 @@ class Input implements IInput {
     $flag = $this->flags->get($key);
     if ($flag is null) {
       throw new Console\Exception\InvalidInputDefinitionException(
-        Str\format("The flag %s doesn't exist.", $key),
+        Str\format("The flag %s does not exist.", $key),
       );
     }
 
@@ -191,7 +184,7 @@ class Input implements IInput {
     $option = $this->options->get($key);
     if ($option is null) {
       throw new Console\Exception\InvalidInputDefinitionException(
-        Str\format("The option %s doesn't exist.", $key),
+        Str\format("The option %s does not exist.", $key),
       );
     }
 
@@ -231,7 +224,7 @@ class Input implements IInput {
         continue;
       }
 
-      if ($this->command is null) {
+      if ($this->command is null && !Lexer::isArgument($val['raw'])) {
         // If we haven't parsed a command yet, do so.
         $this->command = $val['value'];
         continue;
@@ -239,12 +232,6 @@ class Input implements IInput {
 
       if ($this->parseArgument($val)) {
         continue;
-      }
-
-      if ($this->strict === true) {
-        throw new Console\Exception\InvalidNumberOfArgumentsException(
-          Str\format("No parameter registered for value %s", $val['value']),
-        );
       }
 
       $this->invalid[] = $val;
@@ -297,6 +284,12 @@ class Input implements IInput {
           Str\format("No value present for required argument %s", $name),
         );
       }
+    }
+
+    foreach ($this->invalid as $value) {
+      throw new Console\Exception\RuntimeException(
+        Str\format('The "%s" parameter does not exist.', $value['raw']),
+      );
     }
   }
 
@@ -383,7 +376,7 @@ class Input implements IInput {
       );
     }
 
-    if (!$this->input->end() && $this->input->isArgument($nextValue['raw'])) {
+    if (!$this->input->end() && Lexer::isArgument($nextValue['raw'])) {
       throw new Console\Exception\MissingValueException(
         Str\format('No value is present for option %s.', $key),
       );

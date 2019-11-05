@@ -77,7 +77,7 @@ final class Lexer
    */
   private function explode(): void {
     if (
-      !$this->isShort($this->current['raw']) ||
+      !static::isShort($this->current['raw']) ||
       Str\length($this->current['value']) <= 1
     ) {
       return;
@@ -98,22 +98,25 @@ final class Lexer
   /**
    * Return whether the given value is representing notation for an argument.
    */
-  public function isArgument(string $value): bool {
-    return $this->isShort($value) || $this->isLong($value);
+  <<__Memoize>>
+  public static function isArgument(string $value): bool {
+    return static::isLong($value) || static::isShort($value);
   }
 
   /**
    * Determine if the given value is representing a long argument (i.e., --foo).
    */
-  public function isLong(string $value): bool {
+  <<__Memoize>>
+  public static function isLong(string $value): bool {
     return Str\starts_with($value, '--');
   }
 
   /**
    * Determine if the given value is representing a short argument (i.e., -f).
    */
-  public function isShort(string $value): bool {
-    return !$this->isLong($value) && Str\starts_with($value, '-');
+  <<__Memoize>>
+  public static function isShort(string $value): bool {
+    return !static::isLong($value) && Str\starts_with($value, '-');
   }
 
   /**
@@ -150,6 +153,7 @@ final class Lexer
   /**
    * Create and return RawInput given a raw string value.
    */
+  <<__Memoize>>  
   public function processInput(
     string $input,
   ): shape(
@@ -159,12 +163,10 @@ final class Lexer
     $raw = $input;
     $value = $input;
 
-    if ($this->isLong($input)) {
+    if (static::isLong($input)) {
       $value = Str\slice($input, 2);
-    } else {
-      if ($this->isShort($input)) {
-        $value = Str\slice($input, 1);
-      }
+    } else if (static::isShort($input)) {
+      $value = Str\slice($input, 1);
     }
 
     return shape(
