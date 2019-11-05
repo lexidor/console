@@ -80,7 +80,7 @@ final class HelpScreen {
     if (!C\is_empty($this->arguments->all())) {
       if ($output = $this->renderSection($this->arguments)) {
         $retval[] = Str\format(
-          '<warning>%s</warning>%s%s',
+          '<warning>%s</>%s%s',
           'Arguments',
           Output\IOutput::LF,
           $output,
@@ -91,7 +91,7 @@ final class HelpScreen {
     if (!C\is_empty($this->flags->all())) {
       if ($output = $this->renderSection($this->flags)) {
         $retval[] = Str\format(
-          '<warning>%s</warning>%s%s',
+          '<warning>%s</>%s%s',
           'Flags',
           Output\IOutput::LF,
           $output,
@@ -102,7 +102,7 @@ final class HelpScreen {
     if (!C\is_empty($this->options->all())) {
       if ($output = $this->renderSection($this->options)) {
         $retval[] = Str\format(
-          '<warning>%s</warning>%s%s',
+          '<warning>%s</>%s%s',
           'Options',
           Output\IOutput::LF,
           $output,
@@ -116,7 +116,7 @@ final class HelpScreen {
       }
     }
 
-    return Str\join($retval, Output\IOutput::LF.Output\IOutput::LF);
+    return Str\join($retval, Output\IOutput::LF.Output\IOutput::LF).Output\IOutput::LF;
   }
 
   /**
@@ -172,7 +172,7 @@ final class HelpScreen {
               },
             );
             $output[] = Str\format(
-              '<effects=bold>%s</>',
+              '<bold>%s</>',
               Str\repeat('  ', $indentation->value).
               Str\pad_right($nest, $maxLength),
             );
@@ -190,7 +190,7 @@ final class HelpScreen {
         },
       );
       $formatted = Str\format(
-        '<success>%s</success>',
+        '<success>%s</>',
         Str\repeat('  ', $indentation->value).
         Str\pad_right($name, $maxLength - (2 * $indentation->value)),
       );
@@ -215,7 +215,7 @@ final class HelpScreen {
     }
 
     return Str\format(
-      '<warning>Available Commands:</warning>%s%s',
+      '<warning>Available Commands:</>%s%s',
       Output\IOutput::LF,
       Str\join($output, Output\IOutput::LF),
     );
@@ -242,8 +242,9 @@ final class HelpScreen {
       }
 
       $name = $this->app->getName();
-      if (($version = $this->app->getVersion()) !== '') {
-        $name .= Str\format(" version <warning>%s</warning>", $version);
+      $version = $this->app->getVersion();
+      if ($version !== '') {
+        $name .= Str\format(" version <warning>%s</>", $version);
       }
 
       $retval[] = $name;
@@ -277,7 +278,7 @@ final class HelpScreen {
     $output = vec[];
     foreach ($entries as $name => $description) {
       $formatted = '  '.Str\pad_right($name, $maxLength);
-      $formatted = Str\format('<success>%s</success>', $formatted);
+      $formatted = Str\format('<success>%s</>', $formatted);
       $description = Str\split(
         \wordwrap($description, $descriptionLength, '{{NC-BREAK}}'),
         '{{NC-BREAK}}',

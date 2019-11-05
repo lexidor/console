@@ -173,9 +173,9 @@ class Application {
   }
 
   /**
-   * Gets the commands (registered in the given namespace if provided).
+   * Gets the commands.
    *
-   * The array keys are the full names and the values the command instances.
+   * The container keys are the full names and the values the command instances.
   */
   public function all(): KeyedContainer<string, Command> {
     if ($this->loader is null) {
@@ -348,6 +348,7 @@ class Application {
       $command = $this->input->getActiveCommand();
       if ($command is null) {
         $this->input->parse();
+        $this->input->validate();
 
         if ($this->input->getFlag('version')->getValue() === 1) {
           await $this->renderVersionInformation();
@@ -420,7 +421,7 @@ class Application {
 
     if ($verbositySet === false) {
       $flag = $this->input->getFlag('verbose');
-      $verbosity = $flag->getValue(1) as int;
+      $verbosity = $flag->getValue(0) as int;
       switch ($verbosity) {
         case 0:
           $verbosity = Output\Verbosity::Normal;
@@ -484,7 +485,7 @@ class Application {
   /**
    * Render the help screen for the application or the `Command` passed in.
    */
-  public async function renderHelpScreen(
+  protected async function renderHelpScreen(
     ?Command $command = null,
   ): Awaitable<void> {
     $helpScreen = new HelpScreen($this, $this->terminal);
@@ -498,7 +499,7 @@ class Application {
   /**
    * Output version information of the current `Application`.
    */
-  public async function renderVersionInformation(): Awaitable<void> {
+  protected async function renderVersionInformation(): Awaitable<void> {
     if ($this->getVersion()) {
       await $this->output
         ->write($this->getName()." v".$this->getVersion());
@@ -552,9 +553,7 @@ class Application {
   * thrown in `Command` objects.
   */
   protected async function catch(\Throwable $exception): Awaitable<void> {
-    $class = Str\split(\get_class($exception), "\\");
-    $class = $class[C\count($class) - 1];
-
+    $class = \get_class($exception);
     $length = $this->terminal->getWidth() - 4;
     $message = Str\format(
       '[%s] {{BREAK}}{{BREAK}}%s',
@@ -604,7 +603,7 @@ class Application {
       await $this->output
         ->write(
           Str\format(
-            '- <effects=bold>%s:%d</>%s%s',
+            '- <bold>%s:%d</>%s%s',
             $exception->getFile(),
             $exception->getLine(),
             Output\IOutput::LF,
@@ -617,11 +616,11 @@ class Application {
     $frames = Vec\filter(
       Vec\map<array<string, mixed>, dict<string, string>>(
         /* HH_IGNORE_ERROR[4110] */
-                $exception->getTrace(),
+        $exception->getTrace(),
         ($frame) ==> {
           unset($frame['args']);
           /* HH_IGNORE_ERROR[4110] */
-                    return dict<string, string>($frame);
+          return dict<string, string>($frame);
         },
       ),
       ($frame) ==>
@@ -633,40 +632,39 @@ class Application {
         await $lastOperation;
         await $this->output
           ->write(
-            '<fg=warning>Exception trace: </>'.
+            '<fg=yellow>Exception trace: </>'.
             Output\IOutput::LF.
             Output\IOutput::LF,
-            Output\Verbosity::Debug,
+            Output\Verbosity::VeryVerbos,
           );
       };
 
       foreach ($frames as $frame) {
         if (C\contains_key($frame, 'class')) {
           $call = Str\format(
-            ' %s<effects=bold>%s</>%s<effects=bold>()</>%s',
+            ' %s%s%s()',
             $frame['class'],
             $frame['type'],
             $frame['function'],
-            Output\IOutput::LF,
           );
         } else {
-          $call = Str\format(' %s()%s', $frame['function'], Output\IOutput::LF);
+          $call = Str\format(' %s()', $frame['function']);
         }
 
         $lastOperation = async {
           await $lastOperation;
           await $this->output
-            ->write($call, Output\Verbosity::Debug);
+            ->writeln($call, Output\Verbosity::VeryVerbos);
           await $this->output
             ->write(
               Str\format(
-                ' - <success>%s</>%s%s',
+                ' - <fg=green>%s</>%s%s',
                 $frame['file'].
                 (C\contains_key($frame, 'line') ? ':'.$frame['line'] : ''),
                 Output\IOutput::LF,
                 Output\IOutput::LF,
               ),
-              Output\Verbosity::Debug,
+              Output\Verbosity::VeryVerbos,
             );
         };
       }

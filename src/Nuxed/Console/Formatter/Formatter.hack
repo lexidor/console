@@ -1,6 +1,6 @@
 namespace Nuxed\Console\Formatter;
 
-use namespace HH\Lib\{C, Regex, Str};
+use namespace HH\Lib\{C, Regex, Str, Vec};
 use namespace Nuxed\Console;
 
 class Formatter implements IWrappableFormatter {
@@ -49,8 +49,8 @@ class Formatter implements IWrappableFormatter {
         new Style\Style(null, Style\ForegroundColor::Yellow),
       )
       ->addStyle('error', new Style\Style(
-        Style\BackgroundColor::White,
-        Style\ForegroundColor::Red,
+        Style\BackgroundColor::Red,
+        Style\ForegroundColor::White,
       ))
       ->addStyle('info', new Style\Style(Style\BackgroundColor::Blue))
       ->addStyle('question', new Style\Style(
@@ -117,6 +117,7 @@ class Formatter implements IWrappableFormatter {
       inout $matches,
       \PREG_OFFSET_CAPTURE,
     );
+
     foreach ($matches[0] as $i => $match) {
       $pos = (int)$match[1];
       $text = $match[0];
@@ -186,46 +187,80 @@ class Formatter implements IWrappableFormatter {
     if (C\contains_key($this->styles, $string)) {
       return $this->styles[$string];
     }
-    $style = new Style\Style();
-    if (!\preg_match_all('/([^=]+)=([^;]+)(;|$)/', $string, \PREG_SET_ORDER)) {
+
+    $attributes = Str\replace($string, ';', ' ')
+      |> Str\trim($$)
+      |> Str\split($$, ' ');
+
+    if (C\is_empty($attributes)) {
       return null;
     }
-    $matches = vec[];
-    \preg_match_all_with_matches(
-      '/([^=]+)=([^;]+)(;|$)/',
-      $string,
-      inout $matches,
-      \PREG_SET_ORDER,
-    );
-    foreach ($matches as $match) {
-      $match = vec[$match[1], $match[2], $match[3]];
-      $match[0] = Str\lowercase($match[0]);
-      if ('fg' === $match[0]) {
-        $style->setForeground(
-          Style\ForegroundColor::getValues()[Str\capitalize(
-            Str\lowercase($match[1]),
-          )],
-        );
-      } else if ('bg' === $match[0]) {
-        $style->setBackground(
-          Style\BackgroundColor::getValues()[Str\capitalize(
-            Str\lowercase($match[1]),
-          )],
-        );
-      } else if ('href' === $match[0]) {
-        $style->setHref($match[1]);
-      } else if ('effects' === $match[0]) {
-        $options = Regex\every_match(Str\lowercase($match[1]), re"([^,;]+)");
-        $values = Style\Effect::getValues();
-        foreach ($options as $option) {
-          $style->setEffect($values[Str\capitalize($option[0])]);
+
+    $style = new Style\Style();
+    $valid = false;
+    $backgrounds = Style\BackgroundColor::getValues();
+    $foregrounds = Style\ForegroundColor::getValues();
+    $effects = Style\Effect::getValues();
+
+    foreach ($attributes as $attribute) {
+      if (
+        Str\starts_with($attribute, 'bg=') ||
+        Str\starts_with($attribute, 'background=')
+      ) {
+        $background = Str\split($attribute, '=', 2)
+          |> C\lastx($$)
+          |> Str\replace_every($$, dict['"' => '', '\'' => ''])
+          |> Str\capitalize(Str\lowercase($$));
+        
+        if ('' === $background) {
+          continue;
         }
-      } else {
-        return null;
+
+        if (!C\contains_key($backgrounds, $background)) {
+          throw new Console\Exception\InvalidCharacterSequenceException(
+            Str\format('Background "%s" does not exists.', $background),
+          );
+        }
+
+        $valid = true;
+        $style->setBackground($backgrounds[$background]);
+        continue;
       }
+
+      if (
+        Str\starts_with($attribute, 'fg=') ||
+        Str\starts_with($attribute, 'foreground=')
+      ) {
+        $foreground = Str\split($attribute, '=', 2)
+          |> C\lastx($$)
+          |> Str\replace_every($$, dict['"' => '', '\'' => ''])
+          |> Str\capitalize(Str\lowercase($$));
+
+        if ('' === $foreground) {
+          continue;
+        }
+
+        if (!C\contains_key($foregrounds, $foreground)) {
+          throw new Console\Exception\InvalidCharacterSequenceException(
+            Str\format('Foreground "%s" does not exists.', $foreground),
+          );
+        }
+
+        $valid = true;
+        $style->setForeground($foregrounds[$foreground]);
+        continue;
+      }
+
+      $effect = Str\capitalize(Str\lowercase($attribute));
+      if (!C\contains_key($effects, $effect)) {
+        continue;
+      }
+
+      $valid = true;
+      $style->setEffect($effects[$effect]);
     }
 
-    return $style;
+    return $valid ? $style : null;
   }
 
   /**
