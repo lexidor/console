@@ -98,6 +98,7 @@ final class Style implements IStyle {
   /**
    * {@inheritdoc}
    */
+  <<__Memoize>>
   public function apply(string $text): string {
     $setCodes = vec[];
     $unsetCodes = vec[];
