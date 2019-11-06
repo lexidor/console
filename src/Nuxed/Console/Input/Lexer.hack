@@ -153,7 +153,7 @@ final class Lexer
   /**
    * Create and return RawInput given a raw string value.
    */
-  <<__Memoize>>  
+  <<__Memoize>>
   public function processInput(
     string $input,
   ): shape(

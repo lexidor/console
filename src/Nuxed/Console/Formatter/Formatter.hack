@@ -1,6 +1,6 @@
 namespace Nuxed\Console\Formatter;
 
-use namespace HH\Lib\{C, Regex, Str, Vec};
+use namespace HH\Lib\{C, Regex, Str};
 use namespace Nuxed\Console;
 
 class Formatter implements IWrappableFormatter {
@@ -211,7 +211,7 @@ class Formatter implements IWrappableFormatter {
           |> C\lastx($$)
           |> Str\replace_every($$, dict['"' => '', '\'' => ''])
           |> Str\capitalize(Str\lowercase($$));
-        
+
         if ('' === $background) {
           continue;
         }

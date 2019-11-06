@@ -1,6 +1,6 @@
 namespace Nuxed\Console\Formatter\Style;
 
-enum BackgroundColor: string {
+enum BackgroundColor: string as string {
   Black = '40';
   Red = '41';
   Green = '42';

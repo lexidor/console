@@ -1,7 +1,7 @@
 namespace Nuxed\Console\Input;
 
 use namespace HH\Lib\Experimental\IO;
-use namespace HH\Lib\{Regex, Str, Vec};
+use namespace HH\Lib\{Regex, Str};
 use namespace Nuxed\Console;
 
 /**
