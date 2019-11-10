@@ -258,7 +258,7 @@ class Input implements IInput {
 
       if ($flag->getValue() is null) {
         throw new Console\Exception\MissingValueException(
-          Str\format("Required flag `%s` is not present.", $name),
+          Str\format('Required flag `%s` is not present.', $name),
         );
       }
     }
@@ -270,7 +270,7 @@ class Input implements IInput {
 
       if ($option->getValue() is null) {
         throw new Console\Exception\MissingValueException(
-          Str\format("No value present for required option %s", $name),
+          Str\format('No value present for required option `%s`.', $name),
         );
       }
     }
@@ -282,14 +282,14 @@ class Input implements IInput {
 
       if ($argument->getValue() is null) {
         throw new Console\Exception\MissingValueException(
-          Str\format("No value present for required argument %s", $name),
+          Str\format('No value present for required argument `%s`.', $name),
         );
       }
     }
 
     foreach ($this->invalid as $value) {
       throw new Console\Exception\RuntimeException(
-        Str\format('The "%s" parameter does not exist.', $value['raw']),
+        Str\format('The `%s` parameter does not exist.', $value['raw']),
       );
     }
   }
