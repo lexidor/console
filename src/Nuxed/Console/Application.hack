@@ -145,9 +145,7 @@ class Application {
     $alternatives = $this->findAlternatives($name, $allCommands);
     if (!C\is_empty($alternatives)) {
       // remove hidden commands
-      $alternatives = Vec\filter($alternatives, function($name) {
-        return !$this->get($name)->isHidden();
-      });
+      $alternatives = Vec\filter($alternatives, (string $name) ==> !$this->get($name)->isHidden());
       if (1 === C\count($alternatives)) {
         $message .= Str\format(
           "%s%sDid you mean this?%s%s    ",
@@ -500,10 +498,13 @@ class Application {
    * Output version information of the current `Application`.
    */
   protected async function renderVersionInformation(): Awaitable<void> {
-    if ($this->getVersion()) {
-      await $this->output
-        ->write($this->getName()." v".$this->getVersion());
+    $name = Str\format("<fg=green>%s</>", $this->getName());
+    $version = $this->getVersion();
+    if ($version !== '') {
+      $name .= Str\format(" version <fg=yellow>%s</>", $version);
     }
+
+    await $this->output->writeln($name);
   }
 
   /**
