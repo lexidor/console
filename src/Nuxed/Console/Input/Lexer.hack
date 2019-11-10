@@ -6,7 +6,7 @@ use namespace HH\Lib\{C, Regex, Str, Vec};
  * The `Lexer` handles all parsing and pairing of the provided input.
  */
 final class Lexer
-  implements \Iterator<shape(
+  implements Iterator<shape(
     'raw' => string,
     'value' => string,
   )> {
