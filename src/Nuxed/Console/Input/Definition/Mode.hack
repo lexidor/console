@@ -1,6 +1,6 @@
 namespace Nuxed\Console\Input\Definition;
 
-enum Mode: int {
-  OPTIONAL = 0;
-  REQUIRED = 1;
+enum Mode: int as int {
+  Optional = 0;
+  Required = 1;
 }

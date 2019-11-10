@@ -71,18 +71,22 @@ abstract class AbstractFeedback implements IFeedback {
      * The `Output` used for displaying the feedback information.
      */
     protected Console\Output\IOutput $output,
+
     /**
-     * The `Terminal` use for displaying the feedback information.
+     * The `Terminal` associated with the output.
      */
     protected Console\Terminal $terminal,
+
     /**
      * The total number of cycles expected for the feedback to take until finished.
      */
     protected int $total = 0,
+
     /**
      * The message to be displayed with the feedback.
      */
     protected string $message = '',
+
     /**
      * The interval (in miliseconds) between updates of the indicator.
      */

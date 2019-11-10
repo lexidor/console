@@ -315,7 +315,7 @@ final class HelpScreen {
           $flg .= "|".$flag->getFormattedName($flag->getAlias());
         }
 
-        if ($flag->getMode() === Input\Definition\Mode::OPTIONAL) {
+        if ($flag->getMode() === Input\Definition\Mode::Optional) {
           $usage[] = "[".$flg."]";
         } else {
           $usage[] = $flg;
@@ -328,7 +328,7 @@ final class HelpScreen {
         }
 
         $opt = $opt."=\"...\"";
-        if ($option->getMode() === Input\Definition\Mode::OPTIONAL) {
+        if ($option->getMode() === Input\Definition\Mode::Optional) {
           $usage[] = "[".$opt."]";
         } else {
           $usage[] = $opt;
@@ -341,7 +341,7 @@ final class HelpScreen {
         }
 
         $arg = "<".$arg.">";
-        if ($argument->getMode() === Input\Definition\Mode::OPTIONAL) {
+        if ($argument->getMode() === Input\Definition\Mode::Optional) {
           $usage[] = "[".$arg."]";
         } else {
           $usage[] = $arg;

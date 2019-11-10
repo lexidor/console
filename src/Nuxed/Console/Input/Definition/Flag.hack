@@ -23,7 +23,7 @@ class Flag extends AbstractDefinition<int> {
   public function __construct(
     string $name,
     string $description = '',
-    Mode $mode = Mode::OPTIONAL,
+    Mode $mode = Mode::Optional,
     bool $stackable = false,
   ) {
     parent::__construct($name, $description, $mode);

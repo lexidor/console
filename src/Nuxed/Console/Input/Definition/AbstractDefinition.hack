@@ -43,7 +43,7 @@ abstract class AbstractDefinition<T> implements IDefinition {
   public function __construct(
     string $name,
     string $description = '',
-    Mode $mode = Mode::OPTIONAL,
+    Mode $mode = Mode::Optional,
   ) {
     $this->name = $name;
     $this->description = $description;

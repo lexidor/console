@@ -1,7 +1,7 @@
 namespace Nuxed\Console\Input;
 
 use namespace HH\Lib\Experimental\IO;
-use namespace HH\Lib\{Regex, Str};
+use namespace HH\Lib\{Regex, Str, Vec};
 use namespace Nuxed\Console;
 
 /**
@@ -81,9 +81,10 @@ class Input implements IInput {
     Container<string> $args,
     bool $strict = false,
   ) {
+    $args = Vec\filter<string>($args, (string $arg) ==> '' !== $arg);
     $this->terminal = $terminal;
     $this->stdin = $terminal->getInputHandle();
-    $this->rawInput = vec<string>($args);
+    $this->rawInput = $args;
     $this->input = new Lexer($args);
     $this->flags = new Bag\FlagBag();
     $this->options = new Bag\OptionBag();
@@ -239,7 +240,7 @@ class Input implements IInput {
 
     if ($this->command is null && $this->strict === true) {
       throw new Console\Exception\InvalidNumberOfCommandsException(
-        "No command was parsed from the input.",
+        'No command was parsed from the input.',
       );
     }
 
@@ -251,7 +252,7 @@ class Input implements IInput {
    */
   public function validate(): void {
     foreach ($this->flags->getIterator() as $name => $flag) {
-      if ($flag->getMode() !== Definition\Mode::REQUIRED) {
+      if ($flag->getMode() !== Definition\Mode::Required) {
         continue;
       }
 
@@ -263,7 +264,7 @@ class Input implements IInput {
     }
 
     foreach ($this->options->getIterator() as $name => $option) {
-      if ($option->getMode() !== Definition\Mode::REQUIRED) {
+      if ($option->getMode() !== Definition\Mode::Required) {
         continue;
       }
 
@@ -275,7 +276,7 @@ class Input implements IInput {
     }
 
     foreach ($this->arguments->getIterator() as $name => $argument) {
-      if ($argument->getMode() !== Definition\Mode::REQUIRED) {
+      if ($argument->getMode() !== Definition\Mode::Required) {
         continue;
       }
 

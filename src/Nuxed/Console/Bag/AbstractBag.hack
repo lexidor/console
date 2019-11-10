@@ -39,6 +39,7 @@ abstract class AbstractBag<Tk as arraykey, Tv>
    */
   public function flush(): this {
     $this->data = dict[];
+
     return $this;
   }
 

@@ -4,8 +4,9 @@ use namespace Nuxed\Console\Bag;
 
 class AbstractBag<T as Definition\IDefinition> extends Bag\AbstractBag<string, T> {
   /**
-   * Retrieve the `Definition` object based on the given key. The key is
-   * checked against all available names as well as aliases.
+   * Retrieve the definition object based on the given key.
+   *
+   * The key is checked against all available names as well as aliases.
    */
   <<__Override>>
   public function get(string $key, ?T $default = null): ?T {
