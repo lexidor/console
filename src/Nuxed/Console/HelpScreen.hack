@@ -116,7 +116,8 @@ final class HelpScreen {
       }
     }
 
-    return Str\join($retval, Output\IOutput::LF.Output\IOutput::LF).Output\IOutput::LF;
+    return Str\join($retval, Output\IOutput::LF.Output\IOutput::LF).
+      Output\IOutput::LF;
   }
 
   /**
@@ -237,14 +238,15 @@ final class HelpScreen {
         $retval[] = $command->getName();
       }
     } else if ($this->app->getName() !== '') {
-      if (($banner = $this->app->getBanner()) !== '') {
+      $banner = $this->app->getBanner();
+      if ($banner !== '') {
         $retval[] = $banner;
       }
 
-      $name = $this->app->getName();
+      $name = Str\format("<fg=green>%s</>", $this->app->getName());
       $version = $this->app->getVersion();
       if ($version !== '') {
-        $name .= Str\format(" version <warning>%s</>", $version);
+        $name .= Str\format(" version <fg=yellow>%s</>", $version);
       }
 
       $retval[] = $name;
@@ -307,29 +309,29 @@ final class HelpScreen {
 
       $usage[] = $command->getName();
 
-      foreach ($command->getFlags() as $argument) {
-        $arg = $argument->getFormattedName($argument->getName());
-        if ($argument->getAlias() !== '') {
-          $arg .= "|".$argument->getFormattedName($argument->getAlias());
+      foreach ($command->getFlags() as $flag) {
+        $flg = $flag->getFormattedName($flag->getName());
+        if ($flag->getAlias() !== '') {
+          $flg .= "|".$flag->getFormattedName($flag->getAlias());
         }
 
-        if ($argument->getMode() === Input\Definition\Mode::OPTIONAL) {
-          $usage[] = "[".$arg."]";
+        if ($flag->getMode() === Input\Definition\Mode::OPTIONAL) {
+          $usage[] = "[".$flg."]";
         } else {
-          $usage[] = $arg;
+          $usage[] = $flg;
         }
       }
-      foreach ($command->getOptions() as $argument) {
-        $arg = $argument->getFormattedName($argument->getName());
-        if ($argument->getAlias() !== '') {
-          $arg .= "|".$argument->getFormattedName($argument->getAlias());
+      foreach ($command->getOptions() as $option) {
+        $opt = $option->getFormattedName($option->getName());
+        if ($option->getAlias() !== '') {
+          $opt .= "|".$option->getFormattedName($option->getAlias());
         }
 
-        $arg = $arg."=\"...\"";
-        if ($argument->getMode() === Input\Definition\Mode::OPTIONAL) {
-          $usage[] = "[".$arg."]";
+        $opt = $opt."=\"...\"";
+        if ($option->getMode() === Input\Definition\Mode::OPTIONAL) {
+          $usage[] = "[".$opt."]";
         } else {
-          $usage[] = $arg;
+          $usage[] = $opt;
         }
       }
       foreach ($command->getArguments() as $argument) {
