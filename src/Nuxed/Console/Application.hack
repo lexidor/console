@@ -2,12 +2,19 @@ namespace Nuxed\Console;
 
 use namespace HH\Lib\{C, Dict, Str, Vec};
 use namespace Nuxed\{Environment, EventDispatcher};
+use namespace HH\Lib\Experimental\IO;
 
 /**
  * The `Application` class bootstraps and handles Input and Output to process and
  * run necessary commands.
  */
 class Application {
+  const type Handles = (
+    IO\NonDisposableReadHandle,
+    IO\NonDisposableWriteHandle,
+    IO\NonDisposableWriteHandle,
+  );
+
   /**
    * A decorator banner to `brand` the application.
    */
@@ -38,6 +45,11 @@ class Application {
    */
   protected Output\IOutput $output;
 
+  /**
+   * The IO Handles used for input, output, and error output.
+   */
+  private this::Handles $handles;
+
   protected ?EventDispatcher\IEventDispatcher $dispatcher = null;
 
   protected bool $autoExit = true;
@@ -56,7 +68,17 @@ class Application {
      */
     protected string $version = '',
   ) {
-    $this->terminal = new Terminal();
+    $this->handles = tuple(
+      IO\request_input(),
+      IO\request_output(),
+      IO\request_error(),
+    );
+    $this->terminal = new Terminal(
+      false,
+      $this->handles[0],
+      $this->handles[1],
+      $this->handles[2],
+    );
     $this->input = new Input\Input(
       $this->terminal,
       Vec\drop<string>(
@@ -145,7 +167,10 @@ class Application {
     $alternatives = $this->findAlternatives($name, $allCommands);
     if (!C\is_empty($alternatives)) {
       // remove hidden commands
-      $alternatives = Vec\filter($alternatives, (string $name) ==> !$this->get($name)->isHidden());
+      $alternatives = Vec\filter(
+        $alternatives,
+        (string $name) ==> !$this->get($name)->isHidden(),
+      );
       if (1 === C\count($alternatives)) {
         $message .= Str\format(
           "%s%sDid you mean this?%s%s    ",
@@ -190,7 +215,6 @@ class Application {
     return $commands;
   }
 
-
   /**
    * Gets whether to automatically exit after a command execution or not.
    *
@@ -199,6 +223,7 @@ class Application {
   public function isAutoExitEnabled(): bool {
     return $this->autoExit;
   }
+
   /**
    * Sets whether to automatically exit after a command execution or not.
    */
@@ -210,8 +235,7 @@ class Application {
 
 
   /**
-   * Finds alternative of $name among $collection,
-   * if nothing is found in $collection, try in $abbrevs.
+   * Finds alternative of $name among $collection.
    */
   private function findAlternatives(
     string $name,
@@ -226,14 +250,19 @@ class Application {
 
     foreach (Str\split($name, ':') as $i => $subname) {
       foreach ($collectionParts as $collectionName => $parts) {
-        $exists = C\contains_key($alternatives, $collectionName);
-        if (!C\contains_key($parts, $i) && $exists) {
-          $alternatives[$collectionName] += $threshold;
-          continue;
-        } else if (!C\contains_key($parts, $i)) {
+        $exists = C\contains_key<string, string, num>(
+          $alternatives,
+          $collectionName,
+        );
+        if (!C\contains_key<int, int, string>($parts, $i)) {
+          if ($exists) {
+            $alternatives[$collectionName] += $threshold;
+          }
+
           continue;
         }
-        $lev = \levenshtein($subname, $parts[$i]) as int;
+
+        $lev = \levenshtein($subname, $parts[$i]) as num;
         if (
           $lev <= Str\length($subname) / 3 ||
           '' !== $subname && Str\contains($parts[$i], $subname)
@@ -248,20 +277,23 @@ class Application {
     }
 
     foreach ($collection as $item) {
-      $lev = \levenshtein($name, $item) as int;
+      $lev = \levenshtein($name, $item) as num;
       if ($lev <= Str\length($name) / 3 || Str\contains($item, $name)) {
-        $alternatives[$item] = C\contains_key($alternatives, $item)
+        $alternatives[$item] = C\contains_key<string, string, num>(
+          $alternatives,
+          $item,
+        )
           ? $alternatives[$item] - $lev
           : $lev;
       }
     }
 
-    return Dict\filter<string, int>(
+    return Dict\filter<string, num>(
       $alternatives,
-      ($lev) ==> $lev < 2 * $threshold,
+      ($lev) ==> $lev < (2 * $threshold),
     )
-      |> Dict\sort($$)
-      |> Vec\keys($$);
+      |> Dict\sort<string, num>($$)
+      |> Vec\keys<string, num>($$);
   }
 
   /**
@@ -274,23 +306,23 @@ class Application {
      */
     $this->input->addFlag(
       new Input\Definition\Flag('help', 'Display this help screen.')
-        |> $$->alias('h'),
+        |> $$->setAlias('h'),
     );
     $this->input->addFlag(
       new Input\Definition\Flag('quiet', 'Suppress all output.')
-        |> $$->alias('q'),
+        |> $$->setAlias('q'),
     );
     $this->input->addFlag(
       new Input\Definition\Flag(
         'verbose',
         'Set the verbosity of the application\'s output.',
       )
-        |> $$->alias('v')
+        |> $$->setAlias('v')
         |> $$->setStackable(true),
     );
     $this->input->addFlag(
       new Input\Definition\Flag('version', 'Display the application\'s version')
-        |> $$->alias('V'),
+        |> $$->setAlias('V'),
     );
     $this->input
       ->addFlag(new Input\Definition\Flag('ansi', 'Force ANSI output'));
@@ -337,14 +369,15 @@ class Application {
    * Run the application.
    */
   public async function run(bool $catch = true): Awaitable<int> {
+    $command = null;
     try {
       Environment\put('LINES', (string)$this->terminal->getHeight());
       Environment\put('COLUMNS', (string)$this->terminal->getWidth());
 
       $this->bootstrap();
 
-      $command = $this->input->getActiveCommand();
-      if ($command is null) {
+      $commandName = $this->input->getActiveCommand();
+      if ($commandName is null) {
         $this->input->parse();
         $this->input->validate();
 
@@ -354,7 +387,7 @@ class Application {
           await $this->renderHelpScreen();
         }
       } else {
-        $command = $this->find($command);
+        $command = $this->find($commandName);
         await $this->runCommand($command);
       }
     } catch (\Throwable $e) {
@@ -371,19 +404,22 @@ class Application {
         }
 
         await $this->catch($e);
-        return $this->shutdown($exitCode);
+        return await $this->terminate(
+          $this->input,
+          $this->output,
+          $command,
+          $exitCode,
+        );
       }
 
       throw $e;
     }
 
-    return $this->shutdown(0);
+    return await $this->terminate($this->input, $this->output, $command, 0);
   }
 
   /**
    * Register and run the `Command` object.
-   *
-   * @param Command $command  The `Command` to run
    */
   public async function runCommand(Command $command): Awaitable<int> {
     $command->setInput($this->input);
@@ -537,7 +573,26 @@ class Application {
   /**
    * Termination method executed at the end of the application's run.
    */
-  protected function shutdown(int $exitCode): int {
+  protected async function terminate(
+    Input\IInput $input,
+    Output\IOutput $output,
+    ?Command $command,
+    int $exitCode,
+  ): Awaitable<int> {
+    if ($this->dispatcher is nonnull) {
+      $dispatcher = $this->dispatcher;
+      $event = await $dispatcher->dispatch<Event\TerminateEvent>(
+        new Event\TerminateEvent($input, $output, $command, $exitCode),
+      );
+      $exitCode = $event->getExitCode();
+    }
+
+    concurrent {
+      await $this->handles[0]->closeAsync();
+      await $this->handles[1]->closeAsync();
+      await $this->handles[2]->closeAsync();
+    }
+
     if ($exitCode > 255) {
       $exitCode = 255;
     }
