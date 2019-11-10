@@ -56,16 +56,7 @@ class Formatter implements IWrappableFormatter {
       ->addStyle('question', new Style\Style(
         Style\BackgroundColor::Black,
         Style\ForegroundColor::Cyan,
-      ))
-      ->addStyle('bold', new Style\Style(null, null, vec[
-        Style\Effect::Bold,
-      ]))
-      ->addStyle('underline', new Style\Style(null, null, vec[
-        Style\Effect::Underline,
-      ]))
-      ->addStyle('blink', new Style\Style(null, null, vec[
-        Style\Effect::Blink,
-      ]));
+      ));
 
     foreach ($styles as $name => $style) {
       $this->addStyle($name, $style);
