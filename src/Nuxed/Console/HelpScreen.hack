@@ -232,7 +232,8 @@ final class HelpScreen {
 
     if ($this->command is nonnull) {
       $command = $this->command;
-      if ($description = $command->getDescription()) {
+      $description = $command->getDescription();
+      if ($description !== '') {
         $retval[] = $command->getName().' - '.$description;
       } else {
         $retval[] = $command->getName();
@@ -243,10 +244,10 @@ final class HelpScreen {
         $retval[] = $banner;
       }
 
-      $name = Str\format("<fg=green>%s</>", $this->app->getName());
+      $name = Str\format('<fg=green>%s</>', $this->app->getName());
       $version = $this->app->getVersion();
       if ($version !== '') {
-        $name .= Str\format(" version <fg=yellow>%s</>", $version);
+        $name .= Str\format(' version <fg=yellow>%s</>', $version);
       }
 
       $retval[] = $name;
@@ -312,11 +313,11 @@ final class HelpScreen {
       foreach ($command->getFlags() as $flag) {
         $flg = $flag->getFormattedName($flag->getName());
         if ($flag->getAlias() !== '') {
-          $flg .= "|".$flag->getFormattedName($flag->getAlias());
+          $flg .= '|'.$flag->getFormattedName($flag->getAlias());
         }
 
         if ($flag->getMode() === Input\Definition\Mode::Optional) {
-          $usage[] = "[".$flg."]";
+          $usage[] = '['.$flg.']';
         } else {
           $usage[] = $flg;
         }
@@ -324,12 +325,12 @@ final class HelpScreen {
       foreach ($command->getOptions() as $option) {
         $opt = $option->getFormattedName($option->getName());
         if ($option->getAlias() !== '') {
-          $opt .= "|".$option->getFormattedName($option->getAlias());
+          $opt .= '|'.$option->getFormattedName($option->getAlias());
         }
 
-        $opt = $opt."=\"...\"";
+        $opt = $opt.'="..."';
         if ($option->getMode() === Input\Definition\Mode::Optional) {
-          $usage[] = "[".$opt."]";
+          $usage[] = '['.$opt.']';
         } else {
           $usage[] = $opt;
         }
@@ -337,12 +338,12 @@ final class HelpScreen {
       foreach ($command->getArguments() as $argument) {
         $arg = $argument->getName();
         if ($argument->getAlias() !== '') {
-          $arg .= "|".$argument->getFormattedName($argument->getAlias());
+          $arg .= '|'.$argument->getFormattedName($argument->getAlias());
         }
 
-        $arg = "<".$arg.">";
+        $arg = '<'.$arg.'>';
         if ($argument->getMode() === Input\Definition\Mode::Optional) {
-          $usage[] = "[".$arg."]";
+          $usage[] = '['.$arg.']';
         } else {
           $usage[] = $arg;
         }
