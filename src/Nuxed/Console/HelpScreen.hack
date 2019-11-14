@@ -80,7 +80,7 @@ final class HelpScreen {
     if (!C\is_empty($this->arguments->all())) {
       if ($output = $this->renderSection($this->arguments)) {
         $retval[] = Str\format(
-          '<warning>%s</>%s%s',
+          '<fg=yellow>%s</>%s%s',
           'Arguments',
           Output\IOutput::LF,
           $output,
@@ -91,7 +91,7 @@ final class HelpScreen {
     if (!C\is_empty($this->flags->all())) {
       if ($output = $this->renderSection($this->flags)) {
         $retval[] = Str\format(
-          '<warning>%s</>%s%s',
+          '<fg=yellow>%s</>%s%s',
           'Flags',
           Output\IOutput::LF,
           $output,
@@ -102,7 +102,7 @@ final class HelpScreen {
     if (!C\is_empty($this->options->all())) {
       if ($output = $this->renderSection($this->options)) {
         $retval[] = Str\format(
-          '<warning>%s</>%s%s',
+          '<fg=yellow>%s</>%s%s',
           'Options',
           Output\IOutput::LF,
           $output,
@@ -216,7 +216,7 @@ final class HelpScreen {
     }
 
     return Str\format(
-      '<warning>Available Commands:</>%s%s',
+      '<fg=yellow>Available Commands:</>%s%s',
       Output\IOutput::LF,
       Str\join($output, Output\IOutput::LF),
     );
@@ -281,7 +281,7 @@ final class HelpScreen {
     $output = vec[];
     foreach ($entries as $name => $description) {
       $formatted = '  '.Str\pad_right($name, $maxLength);
-      $formatted = Str\format('<success>%s</>', $formatted);
+      $formatted = Str\format('<fg=green>%s</>', $formatted);
       $description = Str\split(
         \wordwrap($description, $descriptionLength, '{{NC-BREAK}}'),
         '{{NC-BREAK}}',
@@ -356,7 +356,7 @@ final class HelpScreen {
     }
 
     return Str\format(
-      '<warning>Usage</>%s  %s',
+      '<fg=yellow>Usage</>%s  %s',
       Output\IOutput::LF,
       Str\join($usage, ' '),
     );

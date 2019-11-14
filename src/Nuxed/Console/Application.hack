@@ -629,7 +629,7 @@ class Application {
     $lastOperation = async {
       await $this->output
         ->error(Str\format(
-          '<error> %s </>%s',
+          '<fg=white bg=red> %s </>%s',
           Str\pad_right('', $length),
           Output\IOutput::LF,
         ));
@@ -640,7 +640,7 @@ class Application {
         await $lastOperation;
         await $this->output
           ->error(Str\format(
-            '<error> %s </>%s',
+            '<fg=white bg=red> %s </>%s',
             Str\pad_right($line, $length),
             Output\IOutput::LF,
           ));
@@ -651,7 +651,7 @@ class Application {
       await $lastOperation;
       await $this->output
         ->error(Str\format(
-          '<error> %s </>%s%s',
+          '<fg=white bg=red> %s </>%s%s',
           Str\pad_right('', $length),
           Output\IOutput::LF,
           Output\IOutput::LF,
