@@ -276,7 +276,7 @@ final class HelpScreen {
     $maxLength = Math\max(
       Vec\map(Vec\keys($entries), ($key) ==> Str\length($key)),
     ) as nonnull;
-    $descriptionLength = $this->terminal->getWidth() - 4 - $maxLength;
+    $descriptionLength = $this->terminal->getWidth() - 6 - $maxLength;
 
     $output = vec[];
     foreach ($entries as $name => $description) {
@@ -288,8 +288,7 @@ final class HelpScreen {
       );
       $formatted .= '  '.C\first($description);
       $description = Vec\drop($description, 1);
-
-      $pad = Str\repeat(' ', $maxLength + 4);
+      $pad = Str\repeat(' ', $maxLength + 6);
       foreach ($description as $desc) {
         $formatted .= Output\IOutput::LF.$pad.$desc;
       }
