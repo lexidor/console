@@ -133,7 +133,7 @@ final class Style implements IStyle {
       );
     }
 
-    if (C\is_empty($setCodes)) {
+    if (C\is_empty<string>($setCodes)) {
       return $text;
     }
 

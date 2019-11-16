@@ -70,7 +70,7 @@ class ProgressBarFeedback extends AbstractFeedback {
    */
   <<__Override>>
   public function setCharacterSequence(Container<string> $characters): this {
-    if (C\count($characters) !== 2) {
+    if (C\count<string>($characters) !== 2) {
       throw new Console\Exception\InvalidCharacterSequenceException(
         "Display bar must only contain 2 values",
       );

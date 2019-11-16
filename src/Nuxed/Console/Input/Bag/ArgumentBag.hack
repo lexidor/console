@@ -6,6 +6,4 @@ use namespace Nuxed\Console\Input\Definition;
 /**
  * The `ArgumentBag` holds available `Argument` objects to reference.
  */
-class ArgumentBag extends Input\AbstractBag<Definition\Argument> {
-
-}
+class ArgumentBag extends Input\AbstractBag<Definition\Argument> {}

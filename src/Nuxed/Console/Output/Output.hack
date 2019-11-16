@@ -108,9 +108,7 @@ class Output implements IOutput {
       return;
     }
 
-    $output = $this->format($message, $type);
-
-    await $handle->writeAsync($output);
+    await $handle->writeAsync($this->format($message, $type));
 
     return;
   }

@@ -81,7 +81,7 @@ class Input implements IInput {
     Container<string> $args,
     bool $strict = false,
   ) {
-    $args = Vec\filter<string>($args, (string $arg) ==> '' !== $arg);
+    $args = Vec\filter<string>($args, (string $arg): bool ==> '' !== $arg);
     $this->terminal = $terminal;
     $this->stdin = $terminal->getInputHandle();
     $this->rawInput = $args;

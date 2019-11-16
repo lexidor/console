@@ -39,7 +39,7 @@ class Confirm extends AbstractUserInput<bool> {
       $input = $this->default;
     }
 
-    if (!C\contains_key($this->acceptedValues, Str\lowercase($input))) {
+    if (!C\contains_key<string, string, bool>($this->acceptedValues, Str\lowercase($input))) {
       return await $this->prompt($message);
     }
 

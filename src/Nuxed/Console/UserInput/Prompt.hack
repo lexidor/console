@@ -19,7 +19,7 @@ class Prompt extends AbstractUserInput<string> {
    */
   <<__Override>>
   public async function prompt(string $prompt): Awaitable<string> {
-    $keys = Vec\keys($this->acceptedValues);
+    $keys = Vec\keys<string, string>($this->acceptedValues);
     $values = vec<string>($this->acceptedValues);
 
     if ($this->hint !== '') {
@@ -44,11 +44,11 @@ class Prompt extends AbstractUserInput<string> {
     if ($intInput is nonnull) {
       $intInput--;
 
-      if (C\contains_key($values, $input)) {
+      if (C\contains_key($keys, $intInput)) {
         return $keys[$intInput];
       }
 
-      if ($intInput < 0 || $intInput >= C\count($values)) {
+      if ($intInput < 0 || $intInput >= C\count<string>($keys)) {
         await $this->output
           ->error('Invalid menu selection: out of range');
       }

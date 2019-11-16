@@ -19,10 +19,10 @@ class MarkdownTree<Tk as arraykey, Tv> extends AbstractTree<Tk, Tv> {
     string $prefix = '',
   ): Awaitable<string> {
     $output = new Lib\Ref<vec<Awaitable<string>>>(vec[]);
-    $keys = Vec\keys($this->data);
-    $branch = vec($this->data);
+    $keys = Vec\keys<Tk, Tv>($this->data);
+    $branch = vec<Tv>($this->data);
 
-    for ($i = 0, $count = C\count($branch); $i < $count; ++$i) {
+    for ($i = 0, $count = C\count<Tv>($branch); $i < $count; ++$i) {
       $itemPrefix = $prefix.'- ';
       $next = $branch[$i];
       if ($branch[$i] is Container<_>) {
@@ -45,7 +45,7 @@ class MarkdownTree<Tk as arraykey, Tv> extends AbstractTree<Tk, Tv> {
       }
     }
 
-    $result = await Asio\v($output->value);
+    $result = await Asio\v<string>($output->value);
     return Str\join($result, Console\Output\IOutput::LF);
   }
 

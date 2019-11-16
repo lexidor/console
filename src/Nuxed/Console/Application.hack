@@ -137,7 +137,7 @@ class Application {
    * Returns true if the command exists, false otherwise.
    */
   public function has(string $name): bool {
-    return C\contains_key($this->commands, $name) ||
+    return C\contains_key<string, string, Command>($this->commands, $name) ||
       ($this->loader is nonnull && $this->loader->has($name));
   }
 
@@ -161,17 +161,20 @@ class Application {
     }
 
     $allCommands = $this->loader
-      ? Vec\concat($this->loader->getNames(), Vec\keys($this->commands))
-      : Vec\keys($this->commands);
+      ? Vec\concat<string>(
+        $this->loader->getNames(),
+        Vec\keys<string, Command>($this->commands),
+      )
+      : Vec\keys<string, Command>($this->commands);
     $message = Str\format('Command "%s" is not defined.', $name);
     $alternatives = $this->findAlternatives($name, $allCommands);
-    if (!C\is_empty($alternatives)) {
+    if (!C\is_empty<string>($alternatives)) {
       // remove hidden commands
-      $alternatives = Vec\filter(
+      $alternatives = Vec\filter<string>(
         $alternatives,
-        (string $name) ==> !$this->get($name)->isHidden(),
+        (string $name): bool ==> !$this->get($name)->isHidden(),
       );
-      if (1 === C\count($alternatives)) {
+      if (1 === C\count<string>($alternatives)) {
         $message .= Str\format(
           "%s%sDid you mean this?%s%s    ",
           Output\IOutput::LF,
@@ -207,7 +210,10 @@ class Application {
 
     $commands = $this->commands;
     foreach ($this->loader->getNames() as $name) {
-      if (!C\contains_key($commands, $name) && $this->has($name)) {
+      if (
+        !C\contains_key<string, string, Command>($commands, $name) &&
+        $this->has($name)
+      ) {
         $commands[$name] = $this->get($name) as nonnull;
       }
     }
@@ -290,7 +296,7 @@ class Application {
 
     return Dict\filter<string, num>(
       $alternatives,
-      ($lev) ==> $lev < (2 * $threshold),
+      (num $lev): bool ==> $lev < (2 * $threshold),
     )
       |> Dict\sort<string, num>($$)
       |> Vec\keys<string, num>($$);
@@ -669,21 +675,22 @@ class Application {
         );
     };
 
-    $frames = Vec\filter(
-      Vec\map<array<string, mixed>, dict<string, string>>(
+    $frames = Vec\filter<dict<string, string>>(
+      Vec\map<darray<string, mixed>, dict<string, string>>(
         /* HH_IGNORE_ERROR[4110] */
         $exception->getTrace(),
-        ($frame) ==> {
+        (array<string, mixed> $frame): dict<string, string> ==> {
           unset($frame['args']);
           /* HH_IGNORE_ERROR[4110] */
           return dict<string, string>($frame);
         },
       ),
-      ($frame) ==>
-        C\contains_key($frame, 'function') && C\contains_key($frame, 'file'),
+      (dict<string, string> $frame): bool ==>
+        C\contains_key<string, string, string>($frame, 'function') &&
+        C\contains_key<string, string, string>($frame, 'file'),
     );
 
-    if (0 !== C\count($frames)) {
+    if (0 !== C\count<dict<string, string>>($frames)) {
       $lastOperation = async {
         await $lastOperation;
         await $this->output
@@ -696,7 +703,7 @@ class Application {
       };
 
       foreach ($frames as $frame) {
-        if (C\contains_key($frame, 'class')) {
+        if (C\contains_key<string, string, string>($frame, 'class')) {
           $call = Str\format(
             ' %s%s%s()',
             $frame['class'],
@@ -716,7 +723,11 @@ class Application {
               Str\format(
                 ' - <fg=green>%s</>%s%s',
                 $frame['file'].
-                (C\contains_key($frame, 'line') ? ':'.$frame['line'] : ''),
+                (
+                  C\contains_key<string, string, string>($frame, 'line')
+                    ? ':'.$frame['line']
+                    : ''
+                ),
                 Output\IOutput::LF,
                 Output\IOutput::LF,
               ),

@@ -41,12 +41,12 @@ abstract class AbstractTable implements ITable {
       $width = Str\length($value);
       $currentWidth = 0;
 
-      if (C\contains_key($this->columnWidths, $index)) {
+      if (C\contains_key<int, int, int>($this->columnWidths, $index)) {
         $currentWidth = $this->columnWidths[$index];
       }
 
       if ($width > $currentWidth) {
-        if (C\count($this->columnWidths) === $index) {
+        if (C\count<int>($this->columnWidths) === $index) {
           $this->columnWidths[] = $width;
         } else {
           $this->columnWidths[$index] = $width;
@@ -67,7 +67,7 @@ abstract class AbstractTable implements ITable {
 
     foreach ($data as $row) {
       foreach ($row as $column => $_value) {
-        if (!C\contains($headers, $column)) {
+        if (!C\contains<string, string>($headers, $column)) {
           $headers[] = $column;
         }
       }

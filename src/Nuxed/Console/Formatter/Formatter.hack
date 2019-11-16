@@ -84,7 +84,10 @@ class Formatter implements IWrappableFormatter {
    * {@inheritdoc}
    */
   public function hasStyle(string $name): bool {
-    return C\contains_key($this->styles, Str\lowercase($name));
+    return C\contains_key<string, string, Style\IStyle>(
+      $this->styles,
+      Str\lowercase($name),
+    );
   }
 
   /**
@@ -175,7 +178,7 @@ class Formatter implements IWrappableFormatter {
    * Tries to create new style instance from string.
    */
   private function createStyleFromString(string $string): ?Style\IStyle {
-    if (C\contains_key($this->styles, $string)) {
+    if (C\contains_key<string, string, Style\IStyle>($this->styles, $string)) {
       return $this->styles[$string];
     }
 
@@ -183,15 +186,19 @@ class Formatter implements IWrappableFormatter {
       |> Str\trim($$)
       |> Str\split($$, ' ');
 
-    if (C\is_empty($attributes)) {
+    if (C\is_empty<string>($attributes)) {
       return null;
     }
 
     $style = new Style\Style();
     $valid = false;
-    $backgrounds = Style\BackgroundColor::getValues();
-    $foregrounds = Style\ForegroundColor::getValues();
-    $effects = Style\Effect::getValues();
+    $backgrounds = dict<string, Style\BackgroundColor>(
+      Style\BackgroundColor::getValues(),
+    );
+    $foregrounds = dict<string, Style\ForegroundColor>(
+      Style\ForegroundColor::getValues(),
+    );
+    $effects = dict<string, Style\Effect>(Style\Effect::getValues());
 
     foreach ($attributes as $attribute) {
       if (
@@ -199,7 +206,7 @@ class Formatter implements IWrappableFormatter {
         Str\starts_with($attribute, 'background=')
       ) {
         $background = Str\split($attribute, '=', 2)
-          |> C\lastx($$)
+          |> C\lastx<string>($$)
           |> Str\replace_every($$, dict['"' => '', '\'' => ''])
           |> Str\capitalize(Str\lowercase($$));
 
@@ -207,7 +214,12 @@ class Formatter implements IWrappableFormatter {
           continue;
         }
 
-        if (!C\contains_key($backgrounds, $background)) {
+        if (
+          !C\contains_key<string, string, Style\BackgroundColor>(
+            $backgrounds,
+            $background,
+          )
+        ) {
           throw new Console\Exception\InvalidCharacterSequenceException(
             Str\format('Background "%s" does not exists.', $background),
           );
@@ -231,7 +243,12 @@ class Formatter implements IWrappableFormatter {
           continue;
         }
 
-        if (!C\contains_key($foregrounds, $foreground)) {
+        if (
+          !C\contains_key<string, string, Style\ForegroundColor>(
+            $foregrounds,
+            $foreground,
+          )
+        ) {
           throw new Console\Exception\InvalidCharacterSequenceException(
             Str\format('Foreground "%s" does not exists.', $foreground),
           );
@@ -297,7 +314,7 @@ class Formatter implements IWrappableFormatter {
 
     $lines = Str\split($text, "\n");
     foreach ($lines as $line) {
-      $currentLineLength += \strlen($line);
+      $currentLineLength += Str\length($line);
       if ($width <= $currentLineLength) {
         $currentLineLength = 0;
       }

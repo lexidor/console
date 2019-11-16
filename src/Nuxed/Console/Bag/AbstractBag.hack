@@ -57,7 +57,7 @@ abstract class AbstractBag<Tk as arraykey, Tv>
    * Can use a dot notated path as the key.
    */
   public function has(Tk $key): bool {
-    return C\contains_key($this->data, $key);
+    return C\contains_key<Tk, Tk, Tv>($this->data, $key);
   }
 
   /**
@@ -87,6 +87,6 @@ abstract class AbstractBag<Tk as arraykey, Tv>
   }
 
   public function count(): int {
-    return C\count($this->data);
+    return C\count<Tv>($this->data);
   }
 }

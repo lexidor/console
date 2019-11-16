@@ -45,7 +45,7 @@ final class Lexer
    */
   public function __construct(Container<string> $items) {
     $this->items = vec<string>($items);
-    $this->length = C\count($items);
+    $this->length = C\count<string>($items);
     $this->current = shape(
       'value' => '',
       'raw' => '',
@@ -86,11 +86,13 @@ final class Lexer
     $exploded = Str\chunk($this->current['value']);
 
     $this->current = shape(
-      'value' => C\lastx($exploded),
+      'value' => C\lastx<string>($exploded),
       'raw' => '-'.$this->current['value'],
     );
 
-    foreach (Vec\take($exploded, C\count($exploded) - 1) as $piece) {
+    foreach (
+      Vec\take<string>($exploded, C\count<string>($exploded) - 1) as $piece
+    ) {
       $this->unshift('-'.$piece);
     }
   }
@@ -143,7 +145,7 @@ final class Lexer
     'raw' => string,
     'value' => string,
   ) {
-    if (C\count($this->items) > 0) {
+    if (C\count<string>($this->items) > 0) {
       return $this->processInput($this->items[0]);
     }
 
@@ -192,15 +194,15 @@ final class Lexer
    * available items to parse.
    */
   public function shift(): void {
-    $key = C\first($this->items);
-    $this->items = Vec\drop($this->items, 1);
+    $key = C\first<string>($this->items);
+    $this->items = Vec\drop<string>($this->items, 1);
 
     $matches = vec[];
     if ($key is nonnull && Regex\matches($key, re"#\A([^\s'\"=]+)=(.+?)$#")) {
       $matches = Regex\first_match($key, re"#\A([^\s'\"=]+)=(.+?)$#")
         as nonnull;
       $key = $matches[1];
-      $this->items = Vec\concat(vec[$matches[2]], $this->items);
+      $this->items = Vec\concat<string>(vec[$matches[2]], $this->items);
     } else {
       $this->position++;
     }
@@ -218,7 +220,7 @@ final class Lexer
    * Add an item back to the items that have yet to be parsed.
    */
   public function unshift(string $item): void {
-    $this->items = Vec\concat(vec[$item], $this->items);
+    $this->items = Vec\concat<string>(vec[$item], $this->items);
     $this->length++;
   }
 

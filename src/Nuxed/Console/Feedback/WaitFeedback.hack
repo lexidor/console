@@ -49,7 +49,7 @@ class WaitFeedback extends AbstractFeedback {
   public async function display(bool $finish = false): Awaitable<void> {
     $variables = $this->buildOutputVariables();
 
-    $index = $this->iteration++ % C\count($this->characterSequence);
+    $index = $this->iteration++ % C\count<string>($this->characterSequence);
     $feedback = Str\pad_right(
       $this->characterSequence[$index],
       $this->maxLength + 1,
@@ -67,7 +67,7 @@ class WaitFeedback extends AbstractFeedback {
       'suffix' => $suffix,
     ];
 
-      // format message
+    // format message
     $output = $this->insert($this->format, $variables)
       // pad the output to the terminal width
       |> Str\pad_right($$, $this->terminal->getWidth())

@@ -250,7 +250,7 @@ abstract class AbstractFeedback implements IFeedback {
    */
   protected function setMaxLength(): this {
     $this->maxLength = Math\max(
-      Vec\map($this->characterSequence, ($k) ==> Str\length($k)),
+      Vec\map<string, int>($this->characterSequence, (string $k): int ==> Str\length($k)),
     ) as nonnull;
 
     return $this;

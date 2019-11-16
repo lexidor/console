@@ -33,13 +33,16 @@ final class FactoryCommandLoader implements ICommandLoader {
    * Checks if a command exists.
    */
   public function has(string $name): bool {
-    return C\contains_key($this->factories, $name);
+    return C\contains_key<string, string, (function(): Console\Command)>(
+      $this->factories,
+      $name,
+    );
   }
 
   /**
    * @return string[] All registered command names
    */
   public function getNames(): Container<string> {
-    return Vec\keys($this->factories);
+    return Vec\keys<string, (function(): Console\Command)>($this->factories);
   }
 }

@@ -129,13 +129,13 @@ final class HelpScreen {
 
     $indentation = 0;
     $maxLength = Math\max(
-      Vec\map(
-        Vec\keys($this->commands),
+      Vec\map<string, int>(
+        Vec\keys<string, Command>($this->commands),
         ($key) ==> {
           $indentation = new \HH\Lib\Ref<int>(0);
-          Vec\map(
+          Vec\map<string, void>(
             Str\chunk($key),
-            ($char) ==> {
+            (string $char): void ==> {
               $indentation->value += $char === ':' ? 1 : 0;
             },
           );
@@ -153,9 +153,9 @@ final class HelpScreen {
     $nestedNames = vec[];
     foreach ($this->commands as $name => $command) {
       $nested = Str\split($name, ':')
-        |> Vec\take($$, C\count($$) - 1);
+        |> Vec\take<string>($$, C\count<string>($$) - 1);
 
-      if (C\count($nested) > 0) {
+      if (C\count<string>($nested) > 0) {
         $nest = '';
         foreach ($nested as $piece) {
           $nest = $nest ? ":".$piece : $piece;
@@ -166,12 +166,13 @@ final class HelpScreen {
             $nestedNames[] = $nest;
 
             $indentation = new \HH\Lib\Ref<int>(0);
-            Vec\map(
+            Vec\map<string, void>(
               Str\chunk($name),
-              ($char) ==> {
+              (string $char): void ==> {
                 $indentation->value += $char === ':' ? 1 : 0;
               },
             );
+
             $output[] = Str\format(
               '<bold>%s</>',
               Str\repeat('  ', $indentation->value).
@@ -184,12 +185,13 @@ final class HelpScreen {
       }
 
       $indentation = new \HH\Lib\Ref<int>(0);
-      Vec\map(
+      Vec\map<string, void>(
         Str\chunk($name),
-        ($char) ==> {
+        (string $char): void ==> {
           $indentation->value += $char === ':' ? 1 : 0;
         },
       );
+
       $formatted = Str\format(
         '<success>%s</>',
         Str\repeat('  ', $indentation->value).
@@ -204,8 +206,8 @@ final class HelpScreen {
         ),
         '{{NC-BREAK}}',
       );
-      $formatted .= '  '.C\first($description);
-      $description = Vec\drop($description, 1);
+      $formatted .= '  '.C\first<string>($description);
+      $description = Vec\drop<string>($description, 1);
 
       $pad = Str\repeat(' ', $maxLength + 4);
       foreach ($description as $desc) {
@@ -266,15 +268,19 @@ final class HelpScreen {
     $entries = dict[];
     foreach ($arguments as $argument) {
       $name = $argument->getFormattedName($argument->getName());
-      if ($argument->getAlias()) {
-        $name = $argument->getFormattedName($argument->getAlias()).', '.$name;
+      $alias = $argument->getAlias();
+      if (!Str\is_empty($alias)) {
+        $name = $argument->getFormattedName($alias).', '.$name;
       }
 
       $entries[$name] = $argument->getDescription();
     }
 
     $maxLength = Math\max(
-      Vec\map(Vec\keys($entries), ($key) ==> Str\length($key)),
+      Vec\map<string, int>(
+        Vec\keys<string, string>($entries),
+        (string $key): int ==> Str\length($key),
+      ),
     ) as nonnull;
     $descriptionLength = $this->terminal->getWidth() - 6 - $maxLength;
 
@@ -286,8 +292,8 @@ final class HelpScreen {
         \wordwrap($description, $descriptionLength, '{{NC-BREAK}}'),
         '{{NC-BREAK}}',
       );
-      $formatted .= '  '.C\first($description);
-      $description = Vec\drop($description, 1);
+      $formatted .= '  '.C\first<string>($description);
+      $description = Vec\drop<string>($description, 1);
       $pad = Str\repeat(' ', $maxLength + 6);
       foreach ($description as $desc) {
         $formatted .= Output\IOutput::LF.$pad.$desc;
@@ -311,8 +317,9 @@ final class HelpScreen {
 
       foreach ($command->getFlags() as $flag) {
         $flg = $flag->getFormattedName($flag->getName());
-        if ($flag->getAlias() !== '') {
-          $flg .= '|'.$flag->getFormattedName($flag->getAlias());
+        $alias = $flag->getAlias();
+        if (!Str\is_empty($alias)) {
+          $flg .= '|'.$flag->getFormattedName($alias);
         }
 
         if ($flag->getMode() === Input\Definition\Mode::Optional) {
@@ -323,8 +330,9 @@ final class HelpScreen {
       }
       foreach ($command->getOptions() as $option) {
         $opt = $option->getFormattedName($option->getName());
-        if ($option->getAlias() !== '') {
-          $opt .= '|'.$option->getFormattedName($option->getAlias());
+        $alias = $option->getAlias();
+        if (!Str\is_empty($alias)) {
+          $opt .= '|'.$option->getFormattedName($alias);
         }
 
         $opt = $opt.'="..."';
@@ -336,8 +344,9 @@ final class HelpScreen {
       }
       foreach ($command->getArguments() as $argument) {
         $arg = $argument->getName();
-        if ($argument->getAlias() !== '') {
-          $arg .= '|'.$argument->getFormattedName($argument->getAlias());
+        $alias = $argument->getAlias();
+        if (!Str\is_empty($alias)) {
+          $arg .= '|'.$argument->getFormattedName($alias);
         }
 
         $arg = '<'.$arg.'>';

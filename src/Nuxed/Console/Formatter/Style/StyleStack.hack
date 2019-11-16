@@ -25,13 +25,16 @@ final class StyleStack {
    * Pops a style from the stack.
    */
   public function pop(?IStyle $style = null): IStyle {
-    if (C\is_empty($this->styles)) {
+    if (C\is_empty<IStyle>($this->styles)) {
       return $this->emptyStyle;
     }
 
     if ($style is null) {
-      $lastStyle = C\lastx($this->styles);
-      $this->styles = Vec\take($this->styles, C\count($this->styles) - 1);
+      $lastStyle = C\lastx<IStyle>($this->styles);
+      $this->styles = Vec\take<IStyle>(
+        $this->styles,
+        C\count<IStyle>($this->styles) - 1,
+      );
       return $lastStyle;
     }
 
@@ -41,10 +44,10 @@ final class StyleStack {
       $styles[] = tuple($index, $stackedStyle);
     }
 
-    $styles = Vec\reverse($styles);
+    $styles = Vec\reverse<(int, IStyle)>($styles);
     foreach ($styles as list($index, $stackedStyle)) {
       if ($style->apply('') === $stackedStyle->apply('')) {
-        $this->styles = Vec\slice($this->styles, 0, $index);
+        $this->styles = Vec\slice<IStyle>($this->styles, 0, $index);
 
         return $stackedStyle;
       }
@@ -56,7 +59,7 @@ final class StyleStack {
   }
 
   public function getCurrent(): IStyle {
-    return C\last($this->styles) ?? $this->emptyStyle;
+    return C\last<IStyle>($this->styles) ?? $this->emptyStyle;
   }
 
   public function setEmptyStyle(IStyle $style): this {
