@@ -17,12 +17,12 @@
         "hhvm": "^4.25",
         "hhvm/hsl": "^4.25",
         "his/container": "^0.1.0",
-        "nuxed/environment": "^1.1",
+        "nuxed/environment": "^1.2",
         "nuxed/event-dispatcher": "^1.0"
     },
     "require-dev": {
         "facebook/fbexpect": "^2.7",
-        "hhvm/hacktest": "^1.6",
+        "hhvm/hacktest": "^2.0",
         "hhvm/hhast": "^4.25"
     },
     "scripts": {
