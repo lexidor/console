@@ -5,26 +5,25 @@ use namespace HH\Lib\Str;
 use namespace HH\Lib\Experimental\IO;
 
 class Terminal {
+
+  protected IO\ReadHandle $stdin;
+
+  protected IO\WriteHandle $stdout;
+
+  protected IO\WriteHandle $stderr;
+
   private ?bool $decorated;
 
   public function __construct(
     private bool $forceAnsi = false,
-
-    /**
-     * The handle for standard input.
-     */
-    private IO\ReadHandle $stdin = IO\request_input(),
-
-    /**
-     * The handle for standard error.
-     */
-    protected IO\WriteHandle $stderr = IO\request_output(),
-
-    /**
-     * The handle for standard output.
-     */
-    protected IO\WriteHandle $stdout = IO\request_error(),
-  ) {}
+    IO\ReadHandle $stdin = IO\request_input(),
+    IO\WriteHandle $stdout = IO\request_output(),
+    ?IO\WriteHandle $stderr = IO\request_error(),
+  ) {
+    $this->stdin = $stdin;
+    $this->stdout = $stdout;
+    $this->stderr = $stderr ?? $stdout;
+  }
 
   /**
    * Return the handle for standard input.

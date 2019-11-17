@@ -12,7 +12,7 @@ class Application {
   const type Handles = (
     IO\NonDisposableReadHandle,
     IO\NonDisposableWriteHandle,
-    IO\NonDisposableWriteHandle,
+    ?IO\NonDisposableWriteHandle,
   );
 
   /**
@@ -596,7 +596,7 @@ class Application {
     concurrent {
       await $this->handles[0]->closeAsync();
       await $this->handles[1]->closeAsync();
-      await $this->handles[2]->closeAsync();
+      await $this->handles[2]?->closeAsync();
     }
 
     if ($exitCode > 255) {
