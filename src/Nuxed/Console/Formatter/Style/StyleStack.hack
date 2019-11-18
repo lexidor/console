@@ -8,7 +8,7 @@ final class StyleStack {
   private IStyle $emptyStyle;
 
   public function __construct(?IStyle $emptyStyle = null) {
-    $this->emptyStyle = $empty_style ?? new Style();
+    $this->emptyStyle = $emptyStyle ?? new Style();
   }
 
   public function reset(): void {
