@@ -70,7 +70,7 @@ class AsciiTable extends AbstractTable {
    * Given a container of data, build a single row of the table.
    */
   protected function buildRow(Container<string> $data): string {
-    $row = [];
+    $row = vec[];
 
     foreach (vec<string>($data) as $index => $value) {
       $row[] = $this->buildCell((string)$value, $index);
