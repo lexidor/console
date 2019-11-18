@@ -7,7 +7,7 @@ final class StyleStack {
   private vec<IStyle> $styles = vec[];
   private IStyle $emptyStyle;
 
-  public function __construct(?IStyle $empty_style = null) {
+  public function __construct(?IStyle $emptyStyle = null) {
     $this->emptyStyle = $empty_style ?? new Style();
   }
 
