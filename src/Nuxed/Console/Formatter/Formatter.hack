@@ -7,6 +7,7 @@ class Formatter implements IWrappableFormatter {
   protected dict<string, Style\IStyle> $styles = dict[];
 
   protected Style\StyleStack $styleStack;
+  protected Console\Terminal $terminal;
 
   /**
    * Escapes "<" special char in given text.
@@ -37,9 +38,10 @@ class Formatter implements IWrappableFormatter {
 
 
   public function __construct(
-    protected Console\Terminal $terminal = new Console\Terminal(),
+    ?Console\Terminal $terminal = null,
     KeyedContainer<string, Style\IStyle> $styles = dict[],
   ) {
+    $this->terminal = $terminal ?? new Console\Terminal();
     $this->styleStack = new Style\StyleStack();
 
     $this

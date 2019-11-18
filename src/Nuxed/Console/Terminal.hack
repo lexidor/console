@@ -16,13 +16,13 @@ class Terminal {
 
   public function __construct(
     private bool $forceAnsi = false,
-    IO\ReadHandle $stdin = IO\request_input(),
-    IO\WriteHandle $stdout = IO\request_output(),
-    ?IO\WriteHandle $stderr = IO\request_error(),
+    ?IO\ReadHandle $stdin = null,
+    ?IO\WriteHandle $stdout = null,
+    ?IO\WriteHandle $stderr = null,
   ) {
-    $this->stdin = $stdin;
-    $this->stdout = $stdout;
-    $this->stderr = $stderr ?? $stdout;
+    $this->stdin = $stdin ?? IO\request_input();
+    $this->stdout = $stdout ?? IO\request_output();
+    $this->stderr = $stderr ?? IO\request_error() ?? $this->stdout;
   }
 
   /**
