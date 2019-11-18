@@ -5,8 +5,11 @@ use namespace Nuxed\Console\Exception;
 
 final class StyleStack {
   private vec<IStyle> $styles = vec[];
+  private IStyle $emptyStyle;
 
-  public function __construct(private IStyle $emptyStyle = new Style()) {}
+  public function __construct(?IStyle $empty_style = null) {
+    $this->emptyStyle = $empty_style ?? new Style();
+  }
 
   public function reset(): void {
     $this->styles = vec[];
