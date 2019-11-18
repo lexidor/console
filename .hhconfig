@@ -4,3 +4,4 @@ safe_vector_array = true
 unsafe_rx = false
 ignored_paths = [ "vendor/.+/tests/.+", "vendor/.+/bin/.+" ]
 const_default_func_args = true
+disallow_array_literal = true
