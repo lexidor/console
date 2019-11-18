@@ -4,3 +4,4 @@ safe_vector_array = true
 unsafe_rx = false
 ignored_paths = [ "vendor/.+/tests/.+", "vendor/.+/bin/.+" ]
 disallow_array_literal = true
+disable_lval_as_an_expression = true

@@ -78,7 +78,8 @@ final class HelpScreen {
 
     $retval[] = $this->renderUsage();
     if (!C\is_empty($this->arguments->all())) {
-      if ($output = $this->renderSection($this->arguments)) {
+      $output = $this->renderSection($this->arguments);
+      if ($output) {
         $retval[] = Str\format(
           '<fg=yellow>%s</>%s%s',
           'Arguments',
@@ -89,7 +90,8 @@ final class HelpScreen {
     }
 
     if (!C\is_empty($this->flags->all())) {
-      if ($output = $this->renderSection($this->flags)) {
+      $output = $this->renderSection($this->flags);
+      if ($output) {
         $retval[] = Str\format(
           '<fg=yellow>%s</>%s%s',
           'Flags',
@@ -100,7 +102,8 @@ final class HelpScreen {
     }
 
     if (!C\is_empty($this->options->all())) {
-      if ($output = $this->renderSection($this->options)) {
+      $output = $this->renderSection($this->options);
+      if ($output) {
         $retval[] = Str\format(
           '<fg=yellow>%s</>%s%s',
           'Options',
