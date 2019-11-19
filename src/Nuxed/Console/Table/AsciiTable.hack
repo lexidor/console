@@ -104,7 +104,8 @@ class AsciiTable extends AbstractTable {
   public function render(): string {
     $output = vec[];
 
-    if ($header = $this->buildRow($this->headers)) {
+    $header = $this->buildRow($this->headers);
+    if ($header) {
       $output[] = $this->buildBorder();
       $output[] = $header;
     }

@@ -73,7 +73,8 @@ class Terminal {
         $colors === 'true' ||
         $colors === 'on'
       ) {
-        return $this->decorated = true;
+        $this->decorated = true;
+        return $this->decorated;
       }
 
       if (
@@ -82,34 +83,41 @@ class Terminal {
         $colors === 'false' ||
         $colors === 'off'
       ) {
-        return $this->decorated = false;
+        $this->decorated = false;
+        return $this->decorated;
       }
     }
 
     if (Environment\get('TRAVIS') is nonnull) {
-      return $this->decorated = true;
+      $this->decorated = true;
+      return $this->decorated;
     }
 
     if (Environment\get('CIRCLECI') is nonnull) {
-      return $this->decorated = true;
+      $this->decorated = true;
+      return $this->decorated;
     }
 
     if (Environment\get('TERM') === 'xterm') {
-      return $this->decorated = true;
+      $this->decorated = true;
+      return $this->decorated;
     }
 
     if (Environment\get('TERM_PROGRAM') === 'Hyper') {
-      return $this->decorated = true;
+      $this->decorated = true;
+      return $this->decorated;
     }
 
     if ($this->isInteractive()) {
-      return $this->decorated = Str\contains_ci(
+      $this->decorated = Str\contains_ci(
         Environment\get('TERM', '') as string,
         'color',
       );
+      return $this->decorated;
     }
 
-    return $this->decorated = false;
+    $this->decorated = false;
+    return $this->decorated;
   }
 
   /**

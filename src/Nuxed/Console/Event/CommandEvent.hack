@@ -17,15 +17,15 @@ final class CommandEvent extends Event {
   /**
    * Disables the command, so it won't be run.
    */
-  public function disableCommand(): bool {
-    return $this->commandShouldRun = false;
+  public function disableCommand(): void {
+    $this->commandShouldRun = false;
   }
 
   /**
    * Enable the command, so it would run.
    */
-  public function enableCommand(): bool {
-    return $this->commandShouldRun = true;
+  public function enableCommand(): void {
+    $this->commandShouldRun = true;
   }
 
   /**

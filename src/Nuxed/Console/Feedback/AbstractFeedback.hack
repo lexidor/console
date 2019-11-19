@@ -250,7 +250,10 @@ abstract class AbstractFeedback implements IFeedback {
    */
   protected function setMaxLength(): this {
     $this->maxLength = Math\max(
-      Vec\map<string, int>($this->characterSequence, (string $k): int ==> Str\length($k)),
+      Vec\map<string, int>(
+        $this->characterSequence,
+        (string $k): int ==> Str\length($k),
+      ),
     ) as nonnull;
 
     return $this;
@@ -300,7 +303,8 @@ abstract class AbstractFeedback implements IFeedback {
     $now = \microtime(true) * 1000;
 
     if ($this->timer < 0) {
-      $this->start = (int)(($this->timer = $now) / 1000);
+      $this->timer = $now;
+      $this->start = (int)($this->timer / 1000);
 
       return true;
     }
