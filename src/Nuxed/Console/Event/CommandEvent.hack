@@ -7,7 +7,7 @@ final class CommandEvent extends Event {
   /**
    * The return code for skipped commands, this will also be passed into the terminate event.
    */
-  const int RETURN_CODE_DISABLED = 113;
+  const int ReturnCode = 113;
 
   /**
    * Indicates if the command should be run or skipped.

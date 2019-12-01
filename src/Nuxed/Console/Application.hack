@@ -495,7 +495,7 @@ class Application {
       if ($event->commandShouldRun()) {
         $exitCode = await $command->run();
       } else {
-        $exitCode = Event\CommandEvent::RETURN_CODE_DISABLED;
+        $exitCode = Event\CommandEvent::ReturnCode;
       }
     } catch (\Throwable $e) {
       $event = new Event\ErrorEvent($this->input, $this->output, $e, $command);
