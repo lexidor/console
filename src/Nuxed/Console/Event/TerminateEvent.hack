@@ -1,6 +1,7 @@
 namespace Nuxed\Console\Event;
 
 use namespace Nuxed\Console;
+use namespace Nuxed\Console\Command;
 
 /**
  * Allows to manipulate the exit code of a command after its execution.
@@ -11,7 +12,7 @@ final class TerminateEvent extends Event {
   public function __construct(
     Console\Input\IInput $input,
     Console\Output\IOutput $output,
-    ?Console\Command $command,
+    ?Command\Command $command,
     int $exitCode,
   ) {
     parent::__construct($input, $output, $command);

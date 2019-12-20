@@ -1,6 +1,7 @@
 namespace Nuxed\Console\Event;
 
 use namespace Nuxed\Console;
+use namespace Nuxed\Console\Command;
 
 /**
  * Allows to handle throwables thrown while running a command.
@@ -12,7 +13,7 @@ final class ErrorEvent extends Event {
     Console\Input\IInput $input,
     Console\Output\IOutput $output,
     private \Throwable $error,
-    ?Console\Command $command,
+    ?Command\Command $command,
   ) {
     parent::__construct($input, $output, $command);
   }

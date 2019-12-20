@@ -1,12 +1,12 @@
 namespace Nuxed\Console\CommandLoader;
 
-use namespace Nuxed\Console;
+use namespace Nuxed\Console\Command;
 
 interface ICommandLoader {
   /**
    * Loads a command.
    */
-  public function get(string $name): Console\Command;
+  public function get(string $name): Command\Command;
 
   /**
    * Checks if a command exists.

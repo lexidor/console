@@ -1,6 +1,7 @@
 namespace Nuxed\Console\Event;
 
 use namespace Nuxed\Console;
+use namespace Nuxed\Console\Command;
 use namespace Nuxed\EventDispatcher\Event;
 
 /**
@@ -10,7 +11,7 @@ class Event implements Event\IEvent {
   public function __construct(
     protected Console\Input\IInput $input,
     protected Console\Output\IOutput $output,
-    protected ?Console\Command $command,
+    protected ?Command\Command $command,
   ) {}
 
   public function getInput(): Console\Input\IInput {
@@ -21,7 +22,7 @@ class Event implements Event\IEvent {
     return $this->output;
   }
 
-  public function getCommand(): ?Console\Command {
+  public function getCommand(): ?Command\Command {
     return $this->command;
   }
 }

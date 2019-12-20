@@ -18,12 +18,12 @@ final class HelpScreen {
   /**
    * The current `Command` the `HelpScreen` refers to.
    */
-  protected ?Command $command;
+  protected ?Command\Command $command;
 
   /**
    * The available `Command` objects available.
    */
-  protected dict<string, Command> $commands;
+  protected dict<string, Command\Command> $commands;
 
   /**
    * The `Console` object to render a help screen for.
@@ -59,7 +59,7 @@ final class HelpScreen {
     $this->terminal = $terminal;
 
     $input = $app->getInput();
-    $this->commands = dict<string, Command>($app->all());
+    $this->commands = dict<string, Command\Command>($app->all());
     $this->arguments = $input->getArguments();
     $this->flags = $input->getFlags();
     $this->options = $input->getOptions();
@@ -83,7 +83,7 @@ final class HelpScreen {
         $retval[] = Str\format(
           '<fg=yellow>%s</>%s%s',
           'Arguments',
-          Output\IOutput::LF,
+          Output\IOutput::EndOfLine,
           $output,
         );
       }
@@ -95,7 +95,7 @@ final class HelpScreen {
         $retval[] = Str\format(
           '<fg=yellow>%s</>%s%s',
           'Flags',
-          Output\IOutput::LF,
+          Output\IOutput::EndOfLine,
           $output,
         );
       }
@@ -107,7 +107,7 @@ final class HelpScreen {
         $retval[] = Str\format(
           '<fg=yellow>%s</>%s%s',
           'Options',
-          Output\IOutput::LF,
+          Output\IOutput::EndOfLine,
           $output,
         );
       }
@@ -119,8 +119,11 @@ final class HelpScreen {
       }
     }
 
-    return Str\join($retval, Output\IOutput::LF.Output\IOutput::LF).
-      Output\IOutput::LF;
+    return Str\join(
+      $retval,
+      Output\IOutput::EndOfLine.Output\IOutput::EndOfLine,
+    ).
+      Output\IOutput::EndOfLine;
   }
 
   /**
@@ -133,7 +136,7 @@ final class HelpScreen {
     $indentation = 0;
     $maxLength = Math\max(
       Vec\map<string, int>(
-        Vec\keys<string, Command>($this->commands),
+        Vec\keys<string, Command\Command>($this->commands),
         ($key) ==> {
           $indentation = new \HH\Lib\Ref<int>(0);
           Vec\map<string, void>(
@@ -155,6 +158,10 @@ final class HelpScreen {
     $output = vec[];
     $nestedNames = vec[];
     foreach ($this->commands as $name => $command) {
+      if ($command->isHidden()) {
+        continue;
+      }
+
       $nested = Str\split($name, ':')
         |> Vec\take<string>($$, C\count<string>($$) - 1);
 
@@ -196,7 +203,8 @@ final class HelpScreen {
       );
 
       $formatted = Str\format(
-        '<success>%s</>',
+        '<%s>%s</>',
+        $command->isEnabled() ? 'success' : 'error',
         Str\repeat('  ', $indentation->value).
         Str\pad_right($name, $maxLength - (2 * $indentation->value)),
       );
@@ -214,7 +222,7 @@ final class HelpScreen {
 
       $pad = Str\repeat(' ', $maxLength + 4);
       foreach ($description as $desc) {
-        $formatted .= Output\IOutput::LF.$pad.$desc;
+        $formatted .= Output\IOutput::EndOfLine.$pad.$desc;
       }
 
       $output[] = '  '.$formatted;
@@ -222,8 +230,8 @@ final class HelpScreen {
 
     return Str\format(
       '<fg=yellow>Available Commands:</>%s%s',
-      Output\IOutput::LF,
-      Str\join($output, Output\IOutput::LF),
+      Output\IOutput::EndOfLine,
+      Str\join($output, Output\IOutput::EndOfLine),
     );
   }
 
@@ -258,7 +266,7 @@ final class HelpScreen {
       $retval[] = $name;
     }
 
-    return Str\join($retval, Output\IOutput::LF);
+    return Str\join($retval, Output\IOutput::EndOfLine);
   }
 
   /**
@@ -299,13 +307,13 @@ final class HelpScreen {
       $description = Vec\drop<string>($description, 1);
       $pad = Str\repeat(' ', $maxLength + 6);
       foreach ($description as $desc) {
-        $formatted .= Output\IOutput::LF.$pad.$desc;
+        $formatted .= Output\IOutput::EndOfLine.$pad.$desc;
       }
 
       $output[] = '  '.$formatted;
     }
 
-    return Str\join($output, Output\IOutput::LF);
+    return Str\join($output, Output\IOutput::EndOfLine);
   }
 
   /**
@@ -368,7 +376,7 @@ final class HelpScreen {
 
     return Str\format(
       '<fg=yellow>Usage</>%s  %s',
-      Output\IOutput::LF,
+      Output\IOutput::EndOfLine,
       Str\join($usage, ' '),
     );
   }
@@ -385,7 +393,7 @@ final class HelpScreen {
   /**
    * Set the `Command` to render a the help screen for.
    */
-  public function setCommand(Command $command): this {
+  public function setCommand(Command\Command $command): this {
     $this->command = $command;
 
     return $this;
@@ -394,8 +402,10 @@ final class HelpScreen {
   /**
    * Set the `Command` objects to render information for.
    */
-  public function setCommands(KeyedContainer<string, Command> $commands): this {
-    $this->commands = dict<string, Command>($commands);
+  public function setCommands(
+    KeyedContainer<string, Command\Command> $commands,
+  ): this {
+    $this->commands = dict<string, Command\Command>($commands);
 
     return $this;
   }

@@ -1,5 +1,6 @@
 namespace Nuxed\Console;
 
+use namespace HH;
 use namespace HH\Lib\{C, Dict, Str, Vec};
 use namespace Nuxed\{Environment, EventDispatcher};
 use namespace HH\Lib\Experimental\IO;
@@ -9,11 +10,7 @@ use namespace HH\Lib\Experimental\IO;
  * run necessary commands.
  */
 class Application {
-  const type Handles = (
-    IO\NonDisposableReadHandle,
-    IO\NonDisposableWriteHandle,
-    ?IO\NonDisposableWriteHandle,
-  );
+  const type Handles = (IO\ReadHandle, IO\WriteHandle, ?IO\WriteHandle);
 
   /**
    * A decorator banner to `brand` the application.
@@ -28,7 +25,7 @@ class Application {
   /**
    * Store added commands until we inject them into the `Input` at runtime.
    */
-  protected dict<string, Command> $commands = dict[];
+  protected dict<string, Command\Command> $commands = dict[];
 
   /**
    * The `Terminal` instance.
@@ -67,26 +64,21 @@ class Application {
      * The version of the application.
      */
     protected string $version = '',
+
+    /**
+     * The IO Handles used for input, output, and error output.
+     */
+    ?this::Handles $handles = null,
   ) {
-    $this->handles = tuple(
-      IO\request_input(),
-      IO\request_output(),
-      IO\request_error(),
-    );
+    $this->handles = $handles ??
+      tuple(IO\request_input(), IO\request_output(), IO\request_error());
     $this->terminal = new Terminal(
       false,
       $this->handles[0],
       $this->handles[1],
       $this->handles[2],
     );
-    $this->input = new Input\Input(
-      $this->terminal,
-      Vec\drop<string>(
-        vec<string>(/* HH_IGNORE_ERROR[2050] */ $GLOBALS['argv']),
-        1,
-      ),
-    );
-
+    $this->input = new Input\Input(argv(), $this->terminal);
     $this->output = new Output\Output(
       Output\Verbosity::Normal,
       $this->terminal,
@@ -104,7 +96,7 @@ class Application {
   /**
    * Add a `Command` to the application to be parsed by the `Input`.
    */
-  public function add(Command $command): this {
+  public function add(Command\Command $command): this {
     if (!$command->isEnabled()) {
       return $this;
     }
@@ -118,7 +110,7 @@ class Application {
   /**
    * Returns a registered command by name or alias.
    */
-  public function get(string $name): Command {
+  public function get(string $name): Command\Command {
     if (!$this->has($name)) {
       throw new Exception\CommandNotFoundException(
         Str\format('The command "%s" does not exist.', $name),
@@ -137,7 +129,10 @@ class Application {
    * Returns true if the command exists, false otherwise.
    */
   public function has(string $name): bool {
-    return C\contains_key<string, string, Command>($this->commands, $name) ||
+    return C\contains_key<string, string, Command\Command>(
+      $this->commands,
+      $name,
+    ) ||
       ($this->loader is nonnull && $this->loader->has($name));
   }
 
@@ -147,7 +142,7 @@ class Application {
    * Contrary to get, this command tries to find the best
    * match if you give it an abbreviation of a name or alias.
    */
-  public function find(string $name): Command {
+  public function find(string $name): Command\Command {
     foreach ($this->commands as $command) {
       foreach ($command->getAliases() as $alias) {
         if (!$this->has($alias)) {
@@ -163,9 +158,9 @@ class Application {
     $allCommands = $this->loader
       ? Vec\concat<string>(
         $this->loader->getNames(),
-        Vec\keys<string, Command>($this->commands),
+        Vec\keys<string, Command\Command>($this->commands),
       )
-      : Vec\keys<string, Command>($this->commands);
+      : Vec\keys<string, Command\Command>($this->commands);
     $message = Str\format('Command "%s" is not defined.', $name);
     $alternatives = $this->findAlternatives($name, $allCommands);
     if (!C\is_empty<string>($alternatives)) {
@@ -177,18 +172,18 @@ class Application {
       if (1 === C\count<string>($alternatives)) {
         $message .= Str\format(
           "%s%sDid you mean this?%s%s    ",
-          Output\IOutput::LF,
-          Output\IOutput::LF,
-          Output\IOutput::LF,
-          Output\IOutput::LF,
+          Output\IOutput::EndOfLine,
+          Output\IOutput::EndOfLine,
+          Output\IOutput::EndOfLine,
+          Output\IOutput::EndOfLine,
         );
       } else {
         $message .= Str\format(
           "%s%sDid you mean one of these?%s%s    ",
-          Output\IOutput::LF,
-          Output\IOutput::LF,
-          Output\IOutput::LF,
-          Output\IOutput::LF,
+          Output\IOutput::EndOfLine,
+          Output\IOutput::EndOfLine,
+          Output\IOutput::EndOfLine,
+          Output\IOutput::EndOfLine,
         );
       }
 
@@ -203,7 +198,7 @@ class Application {
    *
    * The container keys are the full names and the values the command instances.
   */
-  public function all(): KeyedContainer<string, Command> {
+  public function all(): KeyedContainer<string, Command\Command> {
     if ($this->loader is null) {
       return $this->commands;
     }
@@ -211,7 +206,7 @@ class Application {
     $commands = $this->commands;
     foreach ($this->loader->getNames() as $name) {
       if (
-        !C\contains_key<string, string, Command>($commands, $name) &&
+        !C\contains_key<string, string, Command\Command>($commands, $name) &&
         $this->has($name)
       ) {
         $commands[$name] = $this->get($name) as nonnull;
@@ -427,7 +422,7 @@ class Application {
   /**
    * Register and run the `Command` object.
    */
-  public async function runCommand(Command $command): Awaitable<int> {
+  public async function runCommand(Command\Command $command): Awaitable<int> {
     $command->setInput($this->input);
     $command->setOutput($this->output);
     $command->setTerminal($this->terminal);
@@ -526,7 +521,7 @@ class Application {
    * Render the help screen for the application or the `Command` passed in.
    */
   protected async function renderHelpScreen(
-    ?Command $command = null,
+    ?Command\Command $command = null,
   ): Awaitable<void> {
     $helpScreen = new HelpScreen($this, $this->terminal);
     if ($command is nonnull) {
@@ -582,7 +577,7 @@ class Application {
   protected async function terminate(
     Input\IInput $input,
     Output\IOutput $output,
-    ?Command $command,
+    ?Command\Command $command,
     int $exitCode,
   ): Awaitable<int> {
     if ($this->dispatcher is nonnull) {
@@ -591,12 +586,6 @@ class Application {
         new Event\TerminateEvent($input, $output, $command, $exitCode),
       );
       $exitCode = $event->getExitCode();
-    }
-
-    concurrent {
-      await $this->handles[0]->closeAsync();
-      await $this->handles[1]->closeAsync();
-      await $this->handles[2]?->closeAsync();
     }
 
     if ($exitCode > 255) {
@@ -624,7 +613,7 @@ class Application {
     );
     $message = Str\split(
       \wordwrap(
-        Str\replace($message, Output\IOutput::LF, "{{BREAK}}"),
+        Str\replace($message, Output\IOutput::EndOfLine, "{{BREAK}}"),
         $length,
         "{{BREAK}}",
         true,
@@ -637,7 +626,7 @@ class Application {
         ->error(Str\format(
           '<fg=white bg=red> %s </>%s',
           Str\pad_right('', $length),
-          Output\IOutput::LF,
+          Output\IOutput::EndOfLine,
         ));
     };
 
@@ -648,7 +637,7 @@ class Application {
           ->error(Str\format(
             '<fg=white bg=red> %s </>%s',
             Str\pad_right($line, $length),
-            Output\IOutput::LF,
+            Output\IOutput::EndOfLine,
           ));
       };
     }
@@ -659,8 +648,8 @@ class Application {
         ->error(Str\format(
           '<fg=white bg=red> %s </>%s%s',
           Str\pad_right('', $length),
-          Output\IOutput::LF,
-          Output\IOutput::LF,
+          Output\IOutput::EndOfLine,
+          Output\IOutput::EndOfLine,
         ));
       await $this->output
         ->write(
@@ -668,8 +657,8 @@ class Application {
             '- <bold>%s:%d</>%s%s',
             $exception->getFile(),
             $exception->getLine(),
-            Output\IOutput::LF,
-            Output\IOutput::LF,
+            Output\IOutput::EndOfLine,
+            Output\IOutput::EndOfLine,
           ),
           Output\Verbosity::Verbose,
         );
@@ -696,8 +685,8 @@ class Application {
         await $this->output
           ->write(
             '<fg=yellow>Exception trace: </>'.
-            Output\IOutput::LF.
-            Output\IOutput::LF,
+            Output\IOutput::EndOfLine.
+            Output\IOutput::EndOfLine,
             Output\Verbosity::VeryVerbos,
           );
       };
@@ -728,8 +717,8 @@ class Application {
                     ? ':'.$frame['line']
                     : ''
                 ),
-                Output\IOutput::LF,
-                Output\IOutput::LF,
+                Output\IOutput::EndOfLine,
+                Output\IOutput::EndOfLine,
               ),
               Output\Verbosity::VeryVerbos,
             );

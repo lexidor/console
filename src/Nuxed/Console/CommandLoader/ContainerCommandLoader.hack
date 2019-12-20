@@ -1,30 +1,30 @@
 namespace Nuxed\Console\CommandLoader;
 
-use namespace Nuxed\Console;
+use namespace Nuxed\Console\{Command, Exception};
 use namespace His\Container;
 use namespace HH\Lib\{C, Str, Vec};
 
 final class ContainerCommandLoader implements ICommandLoader {
-  private dict<string, classname<Console\Command>> $commandMap;
+  private dict<string, classname<Command\Command>> $commandMap;
 
   public function __construct(
     private Container\ContainerInterface $container,
-    KeyedContainer<string, classname<Console\Command>> $commandMap,
+    KeyedContainer<string, classname<Command\Command>> $commandMap,
   ) {
-    $this->commandMap = dict<string, classname<Console\Command>>($commandMap);
+    $this->commandMap = dict<string, classname<Command\Command>>($commandMap);
   }
 
   /**
    * Loads a command.
    */
-  public function get(string $name): Console\Command {
+  public function get(string $name): Command\Command {
     if (!$this->has($name)) {
-      throw new Console\Exception\InvalidCommandException(
+      throw new Exception\InvalidCommandException(
         Str\format('Command "%s" does not exists', $name),
       );
     }
 
-    return $this->container->get<Console\Command>($this->commandMap[$name]);
+    return $this->container->get<Command\Command>($this->commandMap[$name]);
   }
 
   /**
@@ -32,7 +32,7 @@ final class ContainerCommandLoader implements ICommandLoader {
    */
   public function has(string $name): bool {
     if (
-      !C\contains_key<string, string, classname<Console\Command>>(
+      !C\contains_key<string, string, classname<Command\Command>>(
         $this->commandMap,
         $name,
       )
@@ -40,13 +40,13 @@ final class ContainerCommandLoader implements ICommandLoader {
       return false;
     }
 
-    return $this->container->has<Console\Command>($this->commandMap[$name]);
+    return $this->container->has<Command\Command>($this->commandMap[$name]);
   }
 
   /**
    * @return string[] All registered command names
    */
   public function getNames(): Container<string> {
-    return Vec\keys<string, classname<Console\Command>>($this->commandMap);
+    return Vec\keys<string, classname<Command\Command>>($this->commandMap);
   }
 }

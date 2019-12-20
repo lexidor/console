@@ -1,7 +1,8 @@
-namespace Nuxed\Console;
+namespace Nuxed\Console\Command;
 
 use namespace HH\Lib\{Regex, Str};
-use namespace Nuxed\Console\Exception;
+use namespace Nuxed\Console;
+use namespace Nuxed\Console\{Exception, Input, Feedback, UserInput, Output};
 use namespace Nuxed\Console\Input\{Bag, Definition};
 
 /**
@@ -55,12 +56,12 @@ abstract class Command {
   /**
    * The `Terminal` object.
    */
-  <<__LateInit>> protected Terminal $terminal;
+  <<__LateInit>> protected Console\Terminal $terminal;
 
   /**
    * The `Application` that is currently running the command.
    */
-  <<__LateInit>> protected Application $application;
+  <<__LateInit>> protected Console\Application $application;
 
   /**
    * Construct a new instance of a command.
@@ -220,7 +221,7 @@ abstract class Command {
     return $this->aliases;
   }
 
-  public function getApplication(): ?Application {
+  public function getApplication(): ?Console\Application {
     return $this->application;
   }
 
@@ -356,13 +357,13 @@ abstract class Command {
     return $this;
   }
 
-  public function setTerminal(Terminal $terminal): this {
+  public function setTerminal(Console\Terminal $terminal): this {
     $this->terminal = $terminal;
 
     return $this;
   }
 
-  public function setApplication(Application $application): this {
+  public function setApplication(Console\Application $application): this {
     $this->application = $application;
 
     return $this;
