@@ -358,7 +358,7 @@ class InputTest extends HackTest\HackTest {
     bool $strict = false,
   ): Input\Input {
     $terminal = new Console\Terminal();
-    $input = new Input\Input($terminal, Str\split($command, ' '), $strict);
+    $input = new Input\Input(Str\split($command, ' '), $terminal, $strict);
     foreach ($arguments as $argument) {
       $input->addArgument($argument);
     }
