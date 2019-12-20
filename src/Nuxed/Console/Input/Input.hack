@@ -3,11 +3,12 @@ namespace Nuxed\Console\Input;
 use namespace HH\Lib\Experimental\IO;
 use namespace HH\Lib\{Regex, Str, Vec};
 use namespace Nuxed\Console;
+use namespace Nuxed\Console\Command;
 
 /**
  * {@inheritdoc}
  */
-class Input implements IInput {
+final class Input implements IInput {
   /**
    * Bag container holding all registered `Argument` objects
    */
@@ -21,7 +22,7 @@ class Input implements IInput {
   /**
    * All available `Command` candidates to parse from the input.
    */
-  protected dict<string, Console\Command> $commands = dict[];
+  protected dict<string, Command\Command> $commands = dict[];
 
   /**
    * Bag container holding all registered `Flag` objects
@@ -77,8 +78,8 @@ class Input implements IInput {
    * Construct a new instance of Input
    */
   public function __construct(
-    Console\Terminal $terminal,
     Container<string> $args,
+    Console\Terminal $terminal,
     bool $strict = false,
   ) {
     $args = Vec\filter<string>($args, (string $arg): bool ==> '' !== $arg);
@@ -449,5 +450,12 @@ class Input implements IInput {
     $this->strict = $strict;
 
     return $this;
+  }
+
+  /**
+   * Retrieve the terminal instance assoicated with this input.
+   */
+  public function getTerminal(): Console\Terminal {
+    return $this->terminal;
   }
 }

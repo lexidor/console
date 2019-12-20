@@ -1,5 +1,6 @@
 namespace Nuxed\Console\Input;
 
+use namespace Nuxed\Console;
 
 /**
  * The `Input` class contains all available `Flag`, `Argument`, `Option`, and
@@ -100,4 +101,9 @@ interface IInput {
    * Set the strict value.
    */
   public function setStrict(bool $strict): this;
+
+  /**
+   * Retrieve the terminal instance assoicated with this input.
+   */
+  public function getTerminal(): Console\Terminal;
 }
