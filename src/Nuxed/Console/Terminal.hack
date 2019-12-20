@@ -4,7 +4,7 @@ use namespace Nuxed\Environment;
 use namespace HH\Lib\Str;
 use namespace HH\Lib\Experimental\IO;
 
-class Terminal {
+final class Terminal {
 
   protected IO\ReadHandle $stdin;
 
