@@ -6,4 +6,4 @@ use namespace Nuxed\Console\Input\Definition;
 /**
  * The `FlagBag` holds available `Flag` objects to reference.
  */
-class FlagBag extends Input\AbstractBag<Definition\Flag> {}
+final class FlagBag extends Input\AbstractBag<Definition\Flag> {}

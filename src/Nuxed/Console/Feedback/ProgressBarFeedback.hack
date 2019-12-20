@@ -8,7 +8,7 @@ use namespace HH\Lib\{C, Math, Str};
  * Additional information including percentage done, time elapsed, and time
  * remaining is included by default.
  */
-class ProgressBarFeedback extends AbstractFeedback {
+final class ProgressBarFeedback extends AbstractFeedback {
   /**
    * The 2-string character format to use when constructing the displayed bar.
    */
@@ -51,12 +51,17 @@ class ProgressBarFeedback extends AbstractFeedback {
       'suffix' => $suffix,
     ];
 
-      // format message
+    // format message
     $output = $this->insert($this->format, $variables)
       // pad the output to the terminal width
       |> Str\pad_right($$, $this->terminal->getWidth())
       // append new line charachter
-      |> $$.($finish ? Console\Output\Output::LF : Console\Output\Output::CR);
+      |> $$.
+        (
+          $finish
+            ? Console\Output\Output::EndOfLine
+            : Console\Output\Output::Ctrl
+        );
 
     await $this->output->write(
       $output,

@@ -7,7 +7,7 @@ use namespace Nuxed\Console;
  * The `AsciiTable` object with output a human readable ASCII table in of the
  * provided data.
  */
-class AsciiTable extends AbstractTable {
+final class AsciiTable extends AbstractTable {
   /**
    * A string containing the output for a border.
    */
@@ -118,6 +118,6 @@ class AsciiTable extends AbstractTable {
 
     $output[] = $this->buildBorder();
 
-    return Str\join($output, Console\Output\IOutput::LF);
+    return Str\join($output, Console\Output\IOutput::EndOfLine);
   }
 }

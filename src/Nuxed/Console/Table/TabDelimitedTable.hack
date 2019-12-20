@@ -7,7 +7,7 @@ use namespace Nuxed\Console;
  * The `TabDelimitedTable` class builds and outputs a table with values tab-delimited
  * for use in other applications.
  */
-class TabDelimitedTable extends AbstractTable {
+final class TabDelimitedTable extends AbstractTable {
   /**
    * Build the table and return its markup.
    */
@@ -20,6 +20,6 @@ class TabDelimitedTable extends AbstractTable {
       $output[] = Str\join($row, "\t");
     }
 
-    return Str\trim(Str\join($output, Console\Output\IOutput::LF));
+    return Str\trim(Str\join($output, Console\Output\IOutput::EndOfLine));
   }
 }

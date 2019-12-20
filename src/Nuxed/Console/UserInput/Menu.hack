@@ -7,7 +7,7 @@ use namespace Nuxed\Console;
  * The `Menu` class presents the user with a prompt and a list of available
  * options to choose from.
  */
-class Menu extends AbstractUserInput<string> {
+final class Menu extends AbstractUserInput<string> {
   /**
    * The message to present at the prompt.
    */

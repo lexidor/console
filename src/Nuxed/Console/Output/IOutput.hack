@@ -1,13 +1,15 @@
 namespace Nuxed\Console\Output;
 
+use namespace Nuxed\Console;
 use namespace Nuxed\Console\Formatter;
+use namespace HH\Lib\Experimental\IO;
 
 interface IOutput {
-  const string ERASE_DISPLAY = "\033[2J";
-  const string ERASE_LINE = "\033[K";
-  const string TAB = "\t";
-  const string LF = \PHP_EOL;
-  const string CR = "\r";
+  const string EraseDisplay = "\033[2J";
+  const string EraseLine = "\033[K";
+  const string Tab = "\t";
+  const string EndOfLine = \PHP_EOL;
+  const string Ctrl = "\r";
 
   /**
    * Format contents by parsing the style tags and applying necessary formatting.

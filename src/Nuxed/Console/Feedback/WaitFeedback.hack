@@ -6,7 +6,7 @@ use namespace HH\Lib\{C, Str};
 /**
  * The `WaitFeedback` class displays feedback by cycling through a series of characters.
  */
-class WaitFeedback extends AbstractFeedback {
+final class WaitFeedback extends AbstractFeedback {
 
   /**
    * {@inheritdoc}
@@ -73,7 +73,12 @@ class WaitFeedback extends AbstractFeedback {
       // pad the output to the terminal width
       |> Str\pad_right($$, $this->terminal->getWidth())
       // append new line charachter
-      |> $$.($finish ? Console\Output\Output::LF : Console\Output\Output::CR);
+      |> $$.
+        (
+          $finish
+            ? Console\Output\Output::EndOfLine
+            : Console\Output\Output::Ctrl
+        );
 
     await $this->output->write(
       $output,

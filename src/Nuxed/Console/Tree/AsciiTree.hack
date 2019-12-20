@@ -7,7 +7,7 @@ use namespace HH\Lib\{C, Str, Vec};
 /**
  * Build a human readable ASCII tree given an infinitely nested data structure.
  */
-class AsciiTree<Tk as arraykey, Tv> extends AbstractTree<Tk, Tv> {
+final class AsciiTree<Tk as arraykey, Tv> extends AbstractTree<Tk, Tv> {
   /**
    * {@inheritdoc}
    */
@@ -64,6 +64,6 @@ class AsciiTree<Tk as arraykey, Tv> extends AbstractTree<Tk, Tv> {
     }
 
     $result = await Asio\v<string>($output->value);
-    return Str\join($result, Console\Output\IOutput::LF);
+    return Str\join($result, Console\Output\IOutput::EndOfLine);
   }
 }

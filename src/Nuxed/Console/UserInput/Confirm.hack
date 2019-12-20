@@ -3,7 +3,7 @@ namespace Nuxed\Console\UserInput;
 use namespace HH\Lib\{C, Str};
 use namespace Nuxed\Console;
 
-class Confirm extends AbstractUserInput<bool> {
+final class Confirm extends AbstractUserInput<bool> {
   /**
    * The message to be appended to the prompt message containing the accepted
    * values.
@@ -39,7 +39,12 @@ class Confirm extends AbstractUserInput<bool> {
       $input = $this->default;
     }
 
-    if (!C\contains_key<string, string, bool>($this->acceptedValues, Str\lowercase($input))) {
+    if (
+      !C\contains_key<string, string, bool>(
+        $this->acceptedValues,
+        Str\lowercase($input),
+      )
+    ) {
       return await $this->prompt($message);
     }
 

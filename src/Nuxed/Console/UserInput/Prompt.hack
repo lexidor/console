@@ -7,7 +7,7 @@ use namespace HH\Lib\{C, Str, Vec};
  * The `Prompt` class presents the user with a basic prompt and accepts any input
  * unless predetermined choices are given.
  */
-class Prompt extends AbstractUserInput<string> {
+final class Prompt extends AbstractUserInput<string> {
   /**
    * If the prompt is set to show value hints, this string contains those hints
    * to output when presenting the user with the prompt.

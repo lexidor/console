@@ -4,7 +4,7 @@ use namespace HH\Lib\Experimental\IO;
 use namespace Nuxed\Console;
 use namespace Nuxed\Console\Formatter;
 
-class Output implements IOutput {
+final class Output implements IOutput {
   /**
    * Flag to determine if we should never output ANSI.
    */
@@ -57,7 +57,7 @@ class Output implements IOutput {
   ): Awaitable<void> {
     await $this->writeTo(
       $this->terminal->getOutputHandle(),
-      $message.IOutput::LF,
+      $message.IOutput::EndOfLine,
       $verbosity,
       $type,
     );
@@ -117,8 +117,8 @@ class Output implements IOutput {
    * {@inheritdoc}
    */
   public async function erase(bool $full = false): Awaitable<void> {
-    $chr = $full ? static::ERASE_DISPLAY : static::ERASE_LINE;
-    $chr .= IOutput::CR;
+    $chr = $full ? static::EraseDisplay : static::EraseLine;
+    $chr .= IOutput::Ctrl;
     await $this->write($chr, Verbosity::Normal, Type::Normal);
   }
 

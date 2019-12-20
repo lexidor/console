@@ -9,7 +9,7 @@ use namespace HH\Lib\{C, Str, Vec};
  *
  * @package Nuxed\Console\Tree
  */
-class MarkdownTree<Tk as arraykey, Tv> extends AbstractTree<Tk, Tv> {
+final class MarkdownTree<Tk as arraykey, Tv> extends AbstractTree<Tk, Tv> {
   /**
    * {@inheritdoc}
    */
@@ -46,7 +46,7 @@ class MarkdownTree<Tk as arraykey, Tv> extends AbstractTree<Tk, Tv> {
     }
 
     $result = await Asio\v<string>($output->value);
-    return Str\join($result, Console\Output\IOutput::LF);
+    return Str\join($result, Console\Output\IOutput::EndOfLine);
   }
 
 }

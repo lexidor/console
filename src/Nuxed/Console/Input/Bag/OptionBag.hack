@@ -6,4 +6,4 @@ use namespace Nuxed\Console\Input\Definition;
 /**
  * The `OptionBag` holds available `Option` objects to reference.
  */
-class OptionBag extends Input\AbstractBag<Definition\Option> {}
+final class OptionBag extends Input\AbstractBag<Definition\Option> {}
