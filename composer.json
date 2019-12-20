@@ -18,7 +18,8 @@
         "hhvm/hsl": "^4.25",
         "his/container": "^0.1.0",
         "nuxed/environment": "^1.2",
-        "nuxed/event-dispatcher": "^1.0"
+        "nuxed/event-dispatcher": "^1.0",
+        "hhvm/hsl-experimental": "^4.37"
     },
     "require-dev": {
         "facebook/fbexpect": "^2.7",
