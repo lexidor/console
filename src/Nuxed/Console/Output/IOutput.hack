@@ -1,8 +1,6 @@
 namespace Nuxed\Console\Output;
 
-use namespace Nuxed\Console;
 use namespace Nuxed\Console\Formatter;
-use namespace HH\Lib\Experimental\IO;
 
 interface IOutput {
   const string EraseDisplay = "\033[2J";

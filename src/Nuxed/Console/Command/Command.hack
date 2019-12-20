@@ -2,7 +2,7 @@ namespace Nuxed\Console\Command;
 
 use namespace HH\Lib\{Regex, Str};
 use namespace Nuxed\Console;
-use namespace Nuxed\Console\{Exception, Input, Feedback, UserInput, Output};
+use namespace Nuxed\Console\{Exception, Feedback, Input, Output, UserInput};
 use namespace Nuxed\Console\Input\{Bag, Definition};
 
 /**
