@@ -87,6 +87,6 @@ abstract class AbstractBag<Tk as arraykey, Tv>
   }
 
   public function count(): int {
-    return C\count<Tv>($this->data);
+    return C\count($this->data);
   }
 }

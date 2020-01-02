@@ -48,7 +48,7 @@ final class Prompt extends AbstractUserInput<string> {
         return $keys[$intInput];
       }
 
-      if ($intInput < 0 || $intInput >= C\count<string>($keys)) {
+      if ($intInput < 0 || $intInput >= C\count($keys)) {
         await $this->output
           ->error('Invalid menu selection: out of range');
       }

@@ -66,7 +66,7 @@ final class Menu extends AbstractUserInput<string> {
         return $keys[$input];
       }
 
-      if ($input < 0 || $input >= C\count<string>($values)) {
+      if ($input < 0 || $input >= C\count($values)) {
         await $this->output
           ->error('Invalid menu selection: out of range');
       }

@@ -169,7 +169,7 @@ class Application {
         $alternatives,
         (string $name): bool ==> !$this->get($name)->isHidden(),
       );
-      if (1 === C\count<string>($alternatives)) {
+      if (1 === C\count($alternatives)) {
         $message .= Str\format(
           "%s%sDid you mean this?%s%s    ",
           Output\IOutput::EndOfLine,
@@ -679,7 +679,7 @@ class Application {
         C\contains_key<string, string, string>($frame, 'file'),
     );
 
-    if (0 !== C\count<dict<string, string>>($frames)) {
+    if (0 !== C\count($frames)) {
       $lastOperation = async {
         await $lastOperation;
         await $this->output

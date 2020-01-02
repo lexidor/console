@@ -163,9 +163,9 @@ final class HelpScreen {
       }
 
       $nested = Str\split($name, ':')
-        |> Vec\take<string>($$, C\count<string>($$) - 1);
+        |> Vec\take<string>($$, C\count($$) - 1);
 
-      if (C\count<string>($nested) > 0) {
+      if (C\count($nested) > 0) {
         $nest = '';
         foreach ($nested as $piece) {
           $nest = $nest ? ":".$piece : $piece;

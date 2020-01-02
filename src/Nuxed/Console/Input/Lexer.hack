@@ -45,7 +45,7 @@ final class Lexer
    */
   public function __construct(Container<string> $items) {
     $this->items = vec<string>($items);
-    $this->length = C\count<string>($items);
+    $this->length = C\count($items);
     $this->current = shape(
       'value' => '',
       'raw' => '',
@@ -90,9 +90,7 @@ final class Lexer
       'raw' => '-'.$this->current['value'],
     );
 
-    foreach (
-      Vec\take<string>($exploded, C\count<string>($exploded) - 1) as $piece
-    ) {
+    foreach (Vec\take<string>($exploded, C\count($exploded) - 1) as $piece) {
       $this->unshift('-'.$piece);
     }
   }
@@ -145,7 +143,7 @@ final class Lexer
     'raw' => string,
     'value' => string,
   ) {
-    if (C\count<string>($this->items) > 0) {
+    if (C\count($this->items) > 0) {
       return $this->processInput($this->items[0]);
     }
 

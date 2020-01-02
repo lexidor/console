@@ -49,7 +49,7 @@ final class WaitFeedback extends AbstractFeedback {
   public async function display(bool $finish = false): Awaitable<void> {
     $variables = $this->buildOutputVariables();
 
-    $index = $this->iteration % C\count<string>($this->characterSequence);
+    $index = $this->iteration % C\count($this->characterSequence);
     $this->iteration++;
     $feedback = Str\pad_right(
       $this->characterSequence[$index],

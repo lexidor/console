@@ -36,7 +36,7 @@ final class StyleStack {
       $lastStyle = C\lastx<IStyle>($this->styles);
       $this->styles = Vec\take<IStyle>(
         $this->styles,
-        C\count<IStyle>($this->styles) - 1,
+        C\count($this->styles) - 1,
       );
       return $lastStyle;
     }

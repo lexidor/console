@@ -46,7 +46,7 @@ abstract class AbstractTable implements ITable {
       }
 
       if ($width > $currentWidth) {
-        if (C\count<int>($this->columnWidths) === $index) {
+        if (C\count($this->columnWidths) === $index) {
           $this->columnWidths[] = $width;
         } else {
           $this->columnWidths[$index] = $width;

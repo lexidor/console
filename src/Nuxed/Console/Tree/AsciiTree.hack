@@ -20,7 +20,7 @@ final class AsciiTree<Tk as arraykey, Tv> extends AbstractTree<Tk, Tv> {
     $keys = Vec\keys<Tk, Tv>($this->data);
     $branch = vec<Tv>($this->data);
 
-    for ($i = 0, $count = C\count<Tv>($branch); $i < $count; ++$i) {
+    for ($i = 0, $count = C\count($branch); $i < $count; ++$i) {
       $itemPrefix = $prefix;
       $next = $branch[$i];
 
